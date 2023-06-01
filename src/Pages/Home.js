@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, ButtonGroup, Col, Table } from "react-bootstrap";
+import NewUserModal from "../Components/NewUserModal";
 
 const Home = () => {
   const [returnedData, setReturnedData] = useState([`Hi There`]);
+  const [modalShow, setModalShow] = React.useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +31,11 @@ const Home = () => {
       <Col md={10} className="mx-auto pt-5 pb-5">
         <section className="d-flex justify-content-between">
           <h1>Users</h1>
-          <Button size="lg" variant="success">
+          <Button
+            size="lg"
+            variant="success"
+            onClick={() => setModalShow(true)}
+          >
             New User
           </Button>
         </section>
@@ -71,6 +77,7 @@ const Home = () => {
           </tbody>
         </Table>
       </Col>
+      <NewUserModal show={modalShow} onHide={() => setModalShow(false)} />
     </main>
   );
 };
