@@ -6,19 +6,19 @@ const Home = () => {
   const [returnedData, setReturnedData] = useState([`Hi There`]);
   const [modalShow, setModalShow] = React.useState(false);
 
+  const fetchData = async () => {
+    const newData = await fetch("/get", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    }).then((res) => res.json());
+
+    setReturnedData(newData);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const newData = await fetch("/get", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      }).then((res) => res.json());
-
-      setReturnedData(newData);
-    };
-
     fetchData();
   }, []);
 
@@ -62,13 +62,17 @@ const Home = () => {
                   <td>{data.LastName}</td>
                   <td>{data.EmailAddress}</td>
                   <td>{data.Password}</td>
-                  <td>{data.Number}</td>
+                  <td>0{data.Number}</td>
                   <td>{data.Address}</td>
                   <td>{data.City}</td>
                   <td>
                     <ButtonGroup>
-                      <Button variant="info">Edit</Button>
-                      <Button variant="danger">Delete</Button>
+                      <Button variant="info" value={data.PersonID}>
+                        Edit
+                      </Button>
+                      <Button variant="danger" value={data.PersonID}>
+                        Delete
+                      </Button>
                     </ButtonGroup>
                   </td>
                 </tr>
@@ -77,7 +81,12 @@ const Home = () => {
           </tbody>
         </Table>
       </Col>
-      <NewUserModal show={modalShow} onHide={() => setModalShow(false)} />
+      <NewUserModal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        returneddata={returnedData}
+        fetchdata={fetchData}
+      />
     </main>
   );
 };

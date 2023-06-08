@@ -12,6 +12,38 @@ const getAllUsers = async () => {
   }
 };
 
+const addUser = async (
+  id,
+  lastName,
+  firstName,
+  address,
+  city,
+  emailAddress,
+  password,
+  number
+) => {
+  try {
+    let pool = await sql.connect(config);
+    let user = await pool
+      .request()
+      .input("PersonID", Number(id))
+      .input("LastName", String(lastName))
+      .input("FirstName", String(firstName))
+      .input("Address", String(address))
+      .input("City", String(city))
+      .input("EmailAddress", String(emailAddress))
+      .input("Password", String(password))
+      .input("Number", Number(number)).query(`
+        INSERT INTO Users (PersonID, LastName, FirstName, Address, City, EmailAddress, Password, Number)
+        VALUES (@PersonID, @LastName, @FirstName, @Address, @City, @EmailAddress, @Password, @Number)
+      `);
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   getAllUsers,
+  addUser,
 };

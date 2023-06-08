@@ -1,9 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Swal from "sweetalert2";
 
 const NewUserModal = (props) => {
+  const returnedData = props.returneddata;
+  const users = returnedData.length;
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [emailAddress, setEmailAddress] = useState("");
+  const [password, setPassword] = useState("");
+  const [number, setNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+
+  const clearForm = () => {
+    setFirstName("");
+    setLastName("");
+    setEmailAddress("");
+    setPassword("");
+    setNumber("");
+    setAddress("");
+    setCity("");
+  };
+
+  const addUser = async () => {
+    const newData = await fetch(`/addUser`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        id: users + 1,
+        lastName: lastName,
+        firstName: firstName,
+        address: address,
+        city: city,
+        emailAddress: emailAddress,
+        password: password,
+        number: number,
+      }),
+    }).then((res) => res.json());
+
+    if (newData.res[0]) {
+      Swal.fire({ icon: "success", title: "User Added" });
+      clearForm();
+      props.onHide();
+      props.fetchdata();
+    }
+  };
+
   return (
     <Modal
       {...props}
@@ -16,43 +65,77 @@ const NewUserModal = (props) => {
       </Modal.Header>
       <Modal.Body>
         <Form>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Form.Label>First Name</Form.Label>
             <Form.Control
               type="text"
               placeholder="First Name"
               name="firstName"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Form.Label>Last Name</Form.Label>
-            <Form.Control type="text" placeholder="Last Name" name="lastName" />
+            <Form.Control
+              type="text"
+              placeholder="Last Name"
+              name="lastName"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Form.Label>Email address</Form.Label>
             <Form.Control
               type="email"
               placeholder="name@example.com"
               name="emailAddress"
+              value={emailAddress}
+              onChange={(e) => setEmailAddress(e.target.value)}
             />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="text" placeholder="Password" name="password" />
+            <Form.Control
+              type="text"
+              placeholder="Password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Form.Label>Number</Form.Label>
-            <Form.Control type="number" placeholder="Number" name="number" />
+            <Form.Control
+              type="number"
+              placeholder="Number"
+              name="number"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+            />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Form.Label>Address</Form.Label>
-            <Form.Control type="text" placeholder="Address" name="address" />
+            <Form.Control
+              type="text"
+              placeholder="Address"
+              name="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
           </Form.Group>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Form.Label>City</Form.Label>
-            <Form.Control type="text" placeholder="City" name="city" />
+            <Form.Control
+              type="text"
+              placeholder="City"
+              name="city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
           </Form.Group>
-          <Button>Add New User</Button>
+          <Button onClick={addUser}>Add New User</Button>
         </Form>
       </Modal.Body>
       <Modal.Footer>
