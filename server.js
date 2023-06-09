@@ -45,4 +45,11 @@ app.post("/addUser", async (req, res) => {
   }
 });
 
+app.post("/deleteUser", async (req, res) => {
+  let deleteID = req.body.deleteID;
+  const result = await dbOperation.deleteUser(deleteID);
+  console.log("User Deleted");
+  res.send({ res: result.rowsAffected });
+});
+
 app.listen(API_PORT, () => console.log(`Listening on port ${API_PORT}`));

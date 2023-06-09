@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, ButtonGroup, Col, Table } from "react-bootstrap";
 import NewUserModal from "../Components/NewUserModal";
+import Swal from "sweetalert2";
 
 const Home = () => {
   const [returnedData, setReturnedData] = useState([`Hi There`]);
@@ -16,6 +17,45 @@ const Home = () => {
     }).then((res) => res.json());
 
     setReturnedData(newData);
+  };
+
+  const deleteUser = async (deleteID) => {
+    const newData = await fetch("/deleteUser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        deleteID: deleteID,
+      }),
+    }).then((res) => {
+      res.json().then(() => {
+        if (newData === undefined) {
+          fetchData();
+        }
+      });
+    });
+  };
+
+  const confirmDelete = (event) => {
+    const deleteID = event.target.value;
+
+    Swal.fire({
+      title: "Are you sure you want to delete this user?",
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      denyButtonText: `Don't delete`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        deleteUser(deleteID);
+        Swal.fire("Uer Deleted!", "", "success");
+      } else if (result.isDenied) {
+        Swal.fire("User not deleted", "", "info");
+      }
+    });
   };
 
   useEffect(() => {
@@ -70,7 +110,12 @@ const Home = () => {
                       <Button variant="info" value={data.PersonID}>
                         Edit
                       </Button>
-                      <Button variant="danger" value={data.PersonID}>
+                      <Button
+                        variant="danger"
+                        name="deleteID"
+                        value={data.PersonID}
+                        onClick={confirmDelete}
+                      >
                         Delete
                       </Button>
                     </ButtonGroup>

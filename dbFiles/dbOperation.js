@@ -43,7 +43,21 @@ const addUser = async (
   }
 };
 
+const deleteUser = async (id) => {
+  try {
+    let pool = await sql.connect(config);
+    let user = await pool
+      .request()
+      .input("PersonID", Number(id))
+      .query(`DELETE FROM Users WHERE PersonID = @PersonID`);
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   getAllUsers,
   addUser,
+  deleteUser,
 };
