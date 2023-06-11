@@ -2,10 +2,50 @@ import React, { useEffect, useState } from "react";
 import { Button, ButtonGroup, Col, Table } from "react-bootstrap";
 import NewUserModal from "../Components/NewUserModal";
 import Swal from "sweetalert2";
+import EditUserModal from "../Components/EditUserModal";
+const _ = require("lodash");
 
 const Home = () => {
   const [returnedData, setReturnedData] = useState([`Hi There`]);
   const [modalShow, setModalShow] = React.useState(false);
+  const [editModalShow, setEditModalShow] = React.useState(false);
+  const [fetchedUser, setFetchedUser] = React.useState("");
+
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editEmailAddress, setEditEmailAddress] = useState("");
+  const [editPassword, setEditPassword] = useState("");
+  const [editNumber, setEditNumber] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [editCity, setEditCity] = useState("");
+
+  const changeEditFirstName = (newValue) => {
+    setEditFirstName(newValue);
+  };
+
+  function changeEditLastName(newValue) {
+    setEditLastName(newValue);
+  }
+
+  function changeEditEmailAddress(newValue) {
+    setEditEmailAddress(newValue);
+  }
+
+  function changeEditPassword(newValue) {
+    setEditPassword(newValue);
+  }
+
+  function changeEditNumber(newValue) {
+    setEditNumber(newValue);
+  }
+
+  function changeEditAddress(newValue) {
+    setEditAddress(newValue);
+  }
+
+  function changeEditCity(newValue) {
+    setEditCity(newValue);
+  }
 
   const fetchData = async () => {
     const newData = await fetch("/get", {
@@ -58,13 +98,27 @@ const Home = () => {
     });
   };
 
+  const getUserInfo = (userID) => {
+    const userInfo = _.filter(returnedData, ["PersonID", userID]);
+    setFetchedUser(userInfo);
+    console.log(fetchedUser[0]);
+  };
+
+  const applyUserInfo = () => {
+    setEditFirstName(fetchedUser[0].FirstName);
+    setEditLastName(fetchedUser[0].LastName);
+    setEditEmailAddress(fetchedUser[0].EmailAddress);
+    setEditPassword(fetchedUser[0].Password);
+    setEditNumber(`0${fetchedUser[0].Number}`);
+    setEditAddress(fetchedUser[0].Address);
+    setEditCity(fetchedUser[0].City);
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
 
   useEffect(() => {}, [returnedData]);
-
-  console.log(returnedData);
 
   return (
     <main className="bg-dark vh-100 text-light">
@@ -107,7 +161,14 @@ const Home = () => {
                   <td>{data.City}</td>
                   <td>
                     <ButtonGroup>
-                      <Button variant="info" value={data.PersonID}>
+                      <Button
+                        variant="info"
+                        onClick={() => {
+                          getUserInfo(data.PersonID);
+                          applyUserInfo();
+                          setEditModalShow(true);
+                        }}
+                      >
                         Edit
                       </Button>
                       <Button
@@ -131,6 +192,26 @@ const Home = () => {
         onHide={() => setModalShow(false)}
         returneddata={returnedData}
         fetchdata={fetchData}
+      />
+      <EditUserModal
+        show={editModalShow}
+        onHide={() => setEditModalShow(false)}
+        returneddata={returnedData}
+        fetched_user={fetchedUser}
+        edit_first_name={editFirstName}
+        edit_last_name={editLastName}
+        edit_email_address={editEmailAddress}
+        edit_password={editPassword}
+        edit_number={editNumber}
+        edit_address={editAddress}
+        edit_city={editCity}
+        set__edit_first_name={changeEditFirstName}
+        set__edit_last_name={changeEditLastName}
+        set__edit_email_address={changeEditEmailAddress}
+        set__edit_password={changeEditPassword}
+        set__edit_number={changeEditNumber}
+        set__edit_address={changeEditAddress}
+        set__edit_city={changeEditCity}
       />
     </main>
   );
