@@ -52,4 +52,31 @@ app.post("/deleteUser", async (req, res) => {
   res.send({ res: result.rowsAffected });
 });
 
+app.post("/updateUser", async (req, res) => {
+  let id = req.body.id;
+  let firstName = req.body.firstName;
+  let lastName = req.body.lastName;
+  let emailAddress = req.body.emailAddress;
+  let password = req.body.password;
+  let number = req.body.number;
+  let address = req.body.address;
+  let city = req.body.city;
+
+  const result = await dbOperation.updateUser(
+    id,
+    lastName,
+    firstName,
+    address,
+    city,
+    emailAddress,
+    password,
+    number
+  );
+
+  if (result) {
+    console.log("User Updated");
+    res.send({ res: result.rowsAffected });
+  }
+});
+
 app.listen(API_PORT, () => console.log(`Listening on port ${API_PORT}`));

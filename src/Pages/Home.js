@@ -11,6 +11,7 @@ const Home = () => {
   const [editModalShow, setEditModalShow] = React.useState(false);
   const [fetchedUser, setFetchedUser] = React.useState("");
 
+  const [editPersonID, setEditPersonID] = useState("");
   const [editFirstName, setEditFirstName] = useState("");
   const [editLastName, setEditLastName] = useState("");
   const [editEmailAddress, setEditEmailAddress] = useState("");
@@ -105,6 +106,7 @@ const Home = () => {
   };
 
   const applyUserInfo = () => {
+    setEditPersonID(fetchedUser[0].PersonID);
     setEditFirstName(fetchedUser[0].FirstName);
     setEditLastName(fetchedUser[0].LastName);
     setEditEmailAddress(fetchedUser[0].EmailAddress);
@@ -197,7 +199,9 @@ const Home = () => {
         show={editModalShow}
         onHide={() => setEditModalShow(false)}
         returneddata={returnedData}
+        fetchdata={fetchData}
         fetched_user={fetchedUser}
+        edit_person_id={editPersonID}
         edit_first_name={editFirstName}
         edit_last_name={editLastName}
         edit_email_address={editEmailAddress}

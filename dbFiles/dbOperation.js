@@ -43,6 +43,38 @@ const addUser = async (
   }
 };
 
+const updateUser = async (
+  id,
+  lastName,
+  firstName,
+  address,
+  city,
+  emailAddress,
+  password,
+  number
+) => {
+  try {
+    let pool = await sql.connect(config);
+    let user = await pool
+      .request()
+      .input("PersonID", Number(id))
+      .input("LastName", String(lastName))
+      .input("FirstName", String(firstName))
+      .input("Address", String(address))
+      .input("City", String(city))
+      .input("EmailAddress", String(emailAddress))
+      .input("Password", String(password))
+      .input("Number", Number(number)).query(`
+        UPDATE Users
+        SET LastName = @LastName, FirstName = @FirstName, Address = @Address, City = @City, EmailAddress = @EmailAddress, Password = @Password, Number = @Number 
+        WHERE PersonID = @PersonID
+      `);
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const deleteUser = async (id) => {
   try {
     let pool = await sql.connect(config);
@@ -60,4 +92,5 @@ module.exports = {
   getAllUsers,
   addUser,
   deleteUser,
+  updateUser,
 };

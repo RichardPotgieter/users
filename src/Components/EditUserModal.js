@@ -2,9 +2,35 @@ import React from "react";
 import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import Swal from "sweetalert2";
 
 const EditUserModal = (props) => {
-  const editUser = () => {};
+  const updateUser = async (event) => {
+    const updateID = event.target.value;
+    const newData = await fetch(`/updateUser`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        id: updateID,
+        lastName: props.edit_last_name,
+        firstName: props.edit_first_name,
+        address: props.edit_address,
+        city: props.edit_city,
+        emailAddress: props.edit_email_address,
+        password: props.edit_password,
+        number: props.edit_number,
+      }),
+    }).then((res) => res.json());
+
+    if (newData.res[0]) {
+      Swal.fire({ icon: "success", title: "User Updated" });
+      props.onHide();
+      props.fetchdata();
+    }
+  };
 
   return (
     <Modal
@@ -88,7 +114,13 @@ const EditUserModal = (props) => {
               onChange={(e) => props.set__edit_city(e.target.value)}
             />
           </Form.Group>
-          <Button onClick={editUser}>Update User</Button>
+          <Button
+            name="updateID"
+            value={props.edit_person_id}
+            onClick={updateUser}
+          >
+            Update User
+          </Button>
         </Form>
       </Modal.Body>
       <Modal.Footer>
