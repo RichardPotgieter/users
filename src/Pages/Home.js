@@ -9,7 +9,18 @@ const Home = () => {
   const [returnedData, setReturnedData] = useState([`Hi There`]);
   const [modalShow, setModalShow] = React.useState(false);
   const [editModalShow, setEditModalShow] = React.useState(false);
-  const [fetchedUser, setFetchedUser] = React.useState("");
+  const [fetchedUser, setFetchedUser] = React.useState([
+    {
+      PersonID: 0,
+      FirstName: "",
+      LastName: "",
+      EmailAddress: "",
+      Password: "",
+      Number: "",
+      Address: "",
+      City: "",
+    },
+  ]);
 
   const [editPersonID, setEditPersonID] = useState("");
   const [editFirstName, setEditFirstName] = useState("");
@@ -101,7 +112,10 @@ const Home = () => {
 
   const getUserInfo = (userID) => {
     const userInfo = _.filter(returnedData, ["PersonID", userID]);
-    setFetchedUser(userInfo);
+    setFetchedUser((prevState) => {
+      prevState = userInfo;
+      return prevState;
+    });
     console.log(fetchedUser[0]);
   };
 
