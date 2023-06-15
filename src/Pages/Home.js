@@ -9,55 +9,7 @@ const Home = () => {
   const [returnedData, setReturnedData] = useState([`Hi There`]);
   const [modalShow, setModalShow] = React.useState(false);
   const [editModalShow, setEditModalShow] = React.useState(false);
-  const [fetchedUser, setFetchedUser] = React.useState([
-    {
-      PersonID: 0,
-      FirstName: "",
-      LastName: "",
-      EmailAddress: "",
-      Password: "",
-      Number: "",
-      Address: "",
-      City: "",
-    },
-  ]);
-
-  const [editPersonID, setEditPersonID] = useState("");
-  const [editFirstName, setEditFirstName] = useState("");
-  const [editLastName, setEditLastName] = useState("");
-  const [editEmailAddress, setEditEmailAddress] = useState("");
-  const [editPassword, setEditPassword] = useState("");
-  const [editNumber, setEditNumber] = useState("");
-  const [editAddress, setEditAddress] = useState("");
-  const [editCity, setEditCity] = useState("");
-
-  const changeEditFirstName = (newValue) => {
-    setEditFirstName(newValue);
-  };
-
-  function changeEditLastName(newValue) {
-    setEditLastName(newValue);
-  }
-
-  function changeEditEmailAddress(newValue) {
-    setEditEmailAddress(newValue);
-  }
-
-  function changeEditPassword(newValue) {
-    setEditPassword(newValue);
-  }
-
-  function changeEditNumber(newValue) {
-    setEditNumber(newValue);
-  }
-
-  function changeEditAddress(newValue) {
-    setEditAddress(newValue);
-  }
-
-  function changeEditCity(newValue) {
-    setEditCity(newValue);
-  }
+  const [userinfo, setUserinfo] = useState([]);
 
   const fetchData = async () => {
     const newData = await fetch("/get", {
@@ -110,24 +62,11 @@ const Home = () => {
     });
   };
 
-  const getUserInfo = (userID) => {
-    const userInfo = _.filter(returnedData, ["PersonID", userID]);
-    setFetchedUser((prevState) => {
-      prevState = userInfo;
-      return prevState;
-    });
-    console.log(fetchedUser[0]);
-  };
+  let info = "";
 
-  const applyUserInfo = () => {
-    setEditPersonID(fetchedUser[0].PersonID);
-    setEditFirstName(fetchedUser[0].FirstName);
-    setEditLastName(fetchedUser[0].LastName);
-    setEditEmailAddress(fetchedUser[0].EmailAddress);
-    setEditPassword(fetchedUser[0].Password);
-    setEditNumber(`0${fetchedUser[0].Number}`);
-    setEditAddress(fetchedUser[0].Address);
-    setEditCity(fetchedUser[0].City);
+  const getUserInfo = (userID) => {
+    info = _.filter(returnedData, ["PersonID", userID]);
+    setUserinfo(info);
   };
 
   useEffect(() => {
@@ -181,7 +120,6 @@ const Home = () => {
                         variant="info"
                         onClick={() => {
                           getUserInfo(data.PersonID);
-                          applyUserInfo();
                           setEditModalShow(true);
                         }}
                       >
@@ -213,23 +151,7 @@ const Home = () => {
         show={editModalShow}
         onHide={() => setEditModalShow(false)}
         returneddata={returnedData}
-        fetchdata={fetchData}
-        fetched_user={fetchedUser}
-        edit_person_id={editPersonID}
-        edit_first_name={editFirstName}
-        edit_last_name={editLastName}
-        edit_email_address={editEmailAddress}
-        edit_password={editPassword}
-        edit_number={editNumber}
-        edit_address={editAddress}
-        edit_city={editCity}
-        set__edit_first_name={changeEditFirstName}
-        set__edit_last_name={changeEditLastName}
-        set__edit_email_address={changeEditEmailAddress}
-        set__edit_password={changeEditPassword}
-        set__edit_number={changeEditNumber}
-        set__edit_address={changeEditAddress}
-        set__edit_city={changeEditCity}
+        userinfo={userinfo}
       />
     </main>
   );
