@@ -26,7 +26,7 @@ const addUser = async (
     let pool = await sql.connect(config);
     let user = await pool
       .request()
-      .input("PersonID", Number(id))
+      .input("PersonID", String(id))
       .input("LastName", String(lastName))
       .input("FirstName", String(firstName))
       .input("Address", String(address))
@@ -57,7 +57,7 @@ const updateUser = async (
     let pool = await sql.connect(config);
     let user = await pool
       .request()
-      .input("PersonID", Number(id))
+      .input("PersonID", String(id))
       .input("LastName", String(lastName))
       .input("FirstName", String(firstName))
       .input("Address", String(address))
@@ -80,7 +80,7 @@ const deleteUser = async (id) => {
     let pool = await sql.connect(config);
     let user = await pool
       .request()
-      .input("PersonID", Number(id))
+      .input("PersonID", String(id))
       .query(`DELETE FROM Users WHERE PersonID = @PersonID`);
     return user;
   } catch (error) {

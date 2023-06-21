@@ -91,7 +91,7 @@ const Home = () => {
         <Table striped bordered hover className="rounded overflow-hidden mt-3">
           <thead>
             <tr>
-              <th>#</th>
+              <th>ID</th>
               <th>First Name</th>
               <th>Last Name</th>
               <th>Email Address</th>
@@ -152,6 +152,7 @@ const Home = () => {
         onHide={() => setEditModalShow(false)}
         returneddata={returnedData}
         userinfo={userinfo}
+        onClick={fetchData}
       />
     </main>
   );

@@ -3,11 +3,9 @@ import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Swal from "sweetalert2";
+import moment from "moment";
 
 const NewUserModal = (props) => {
-  const returnedData = props.returneddata;
-  const users = returnedData.length;
-
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -15,6 +13,10 @@ const NewUserModal = (props) => {
   const [number, setNumber] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
+
+  const shortName = firstName.slice(0, 3);
+  const shortSurname = lastName.slice(0, 3);
+  const users = shortName + shortSurname + moment().format("x");
 
   const clearForm = () => {
     setFirstName("");
@@ -34,7 +36,7 @@ const NewUserModal = (props) => {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        id: users + 1,
+        id: firstName.slice(0, 3) + lastName.slice(0, 3) + moment().format("x"),
         lastName: lastName,
         firstName: firstName,
         address: address,
