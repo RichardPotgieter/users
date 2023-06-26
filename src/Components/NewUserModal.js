@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Swal from "sweetalert2";
 import moment from "moment";
+import { FaAsterisk, FaCheck, FaTimes } from "react-icons/fa";
 
 const NewUserModal = (props) => {
   const [firstName, setFirstName] = useState("");
@@ -55,6 +56,15 @@ const NewUserModal = (props) => {
     }
   };
 
+  const hasSpecialChars = (string) => {
+    const specialChars = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    return specialChars.test(string);
+  };
+
+  const hasNumber = (myString) => {
+    return /\d/.test(myString);
+  };
+
   return (
     <Modal
       {...props}
@@ -76,6 +86,35 @@ const NewUserModal = (props) => {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
+            <Form.Text>
+              {firstName.length > 0 &&
+              !hasSpecialChars(firstName) &&
+              !hasNumber(firstName) ? (
+                <span className="text-success">
+                  <FaCheck /> Name is valid
+                </span>
+              ) : null}
+              {hasSpecialChars(firstName) ||
+              hasNumber(firstName) ||
+              firstName.length === 0 ? (
+                <span>
+                  <span>Name is not Valid: </span>
+                  {firstName.length === 0 ? (
+                    <span className="text-danger">Required</span>
+                  ) : null}
+                  {hasSpecialChars(firstName) ? (
+                    <span className="text-danger">
+                      <FaTimes /> No Special Characters{" "}
+                    </span>
+                  ) : null}
+                  {hasNumber(firstName) ? (
+                    <span className="text-danger">
+                      <FaTimes /> No Numbers
+                    </span>
+                  ) : null}
+                </span>
+              ) : null}
+            </Form.Text>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Last Name</Form.Label>
@@ -86,6 +125,24 @@ const NewUserModal = (props) => {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
+            <Form.Text>
+              <span className="text-success">
+                <FaCheck /> Last Name is valid
+              </span>
+              <span>
+                <span>Name is not Valid: </span>
+                {hasSpecialChars(lastName) ? (
+                  <span className="text-danger">
+                    <FaTimes /> No Special Characters{" "}
+                  </span>
+                ) : null}
+                {hasNumber(lastName) ? (
+                  <span className="text-danger">
+                    <FaTimes /> No Numbers
+                  </span>
+                ) : null}
+              </span>
+            </Form.Text>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Email address</Form.Label>
@@ -96,6 +153,14 @@ const NewUserModal = (props) => {
               value={emailAddress}
               onChange={(e) => setEmailAddress(e.target.value)}
             />
+            <Form.Text>
+              <span className="text-success">
+                <FaCheck /> Email Address is valid{" "}
+              </span>
+              <span className="text-danger">
+                <FaTimes /> Email Address is not valid
+              </span>
+            </Form.Text>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Password</Form.Label>
@@ -106,6 +171,23 @@ const NewUserModal = (props) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            <Form.Text>
+              <span className="text-success">
+                <FaCheck /> Password is valid
+              </span>
+              <span>
+                Password needs:{" "}
+                <span className="text-info">
+                  <FaAsterisk /> 1 Capital Letter{" "}
+                </span>
+                <span className="text-info">
+                  <FaAsterisk /> 1 Symbol{" "}
+                </span>
+                <span className="text-info">
+                  <FaAsterisk /> 10 Characters long
+                </span>
+              </span>{" "}
+            </Form.Text>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Number</Form.Label>
@@ -116,6 +198,25 @@ const NewUserModal = (props) => {
               value={number}
               onChange={(e) => setNumber(e.target.value)}
             />
+            <Form.Text>
+              {number.length === 10 ? (
+                <span className="text-success">
+                  <FaCheck /> Number is valid
+                </span>
+              ) : null}
+              {number.length < 10 ? (
+                <span>
+                  Number is not valid:{" "}
+                  <span className="text-info">
+                    <FaAsterisk />
+                    10 Characters long
+                  </span>{" "}
+                  <span className="text-danger">
+                    <FaTimes /> No Letters & Symbols
+                  </span>
+                </span>
+              ) : null}
+            </Form.Text>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Address</Form.Label>
@@ -126,6 +227,9 @@ const NewUserModal = (props) => {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
+            {address.length === 0 ? (
+              <Form.Text className="text-danger">Address is Required</Form.Text>
+            ) : null}
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>City</Form.Label>
@@ -136,6 +240,24 @@ const NewUserModal = (props) => {
               value={city}
               onChange={(e) => setCity(e.target.value)}
             />
+            <Form.Text>
+              <span className="text-success">
+                <FaCheck /> City is valid
+              </span>
+              <span>
+                City is not valid:{" "}
+                {hasSpecialChars(city) ? (
+                  <span className="text-danger">
+                    <FaTimes /> No Special Characters{" "}
+                  </span>
+                ) : null}
+                {hasNumber(city) ? (
+                  <span className="text-danger">
+                    <FaTimes /> No Numbers{" "}
+                  </span>
+                ) : null}
+              </span>
+            </Form.Text>
           </Form.Group>
           <Button onClick={addUser}>Add New User</Button>
         </Form>
