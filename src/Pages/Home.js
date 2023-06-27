@@ -143,9 +143,11 @@ const Home = () => {
       </Col>
       <NewUserModal
         show={modalShow}
-        onHide={() => setModalShow(false)}
+        onHide={() => {
+          setModalShow(false);
+          fetchData();
+        }}
         returneddata={returnedData}
-        fetchdata={fetchData}
       />
       <EditUserModal
         show={editModalShow}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -14,10 +14,6 @@ const NewUserModal = (props) => {
   const [number, setNumber] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
-
-  const shortName = firstName.slice(0, 3);
-  const shortSurname = lastName.slice(0, 3);
-  const users = shortName + shortSurname + moment().format("x");
 
   const clearForm = () => {
     setFirstName("");
@@ -52,7 +48,6 @@ const NewUserModal = (props) => {
       Swal.fire({ icon: "success", title: "User Added" });
       clearForm();
       props.onHide();
-      props.fetchdata();
     }
   };
 
@@ -63,6 +58,50 @@ const NewUserModal = (props) => {
 
   const hasNumber = (myString) => {
     return /\d/.test(myString);
+  };
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
+  function containsUppercase(str) {
+    return /[A-Z]/.test(str);
+  }
+
+  const isPasswordValid = () => {
+    if (
+      containsUppercase(password) &&
+      hasSpecialChars(password) &&
+      password.length > 10
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const isNameValid = (x) => {
+    if (x.length > 0 && !hasSpecialChars(x) && !hasNumber(x)) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const isNewUserValid = () => {
+    return (
+      isNameValid(firstName) &&
+      isNameValid(lastName) &&
+      validateEmail(emailAddress) &&
+      isPasswordValid() &&
+      number.length === 10 &&
+      address.length > 0 &&
+      isNameValid(city)
+    );
   };
 
   return (
@@ -87,16 +126,12 @@ const NewUserModal = (props) => {
               onChange={(e) => setFirstName(e.target.value)}
             />
             <Form.Text>
-              {firstName.length > 0 &&
-              !hasSpecialChars(firstName) &&
-              !hasNumber(firstName) ? (
+              {isNameValid(firstName) ? (
                 <span className="text-success">
                   <FaCheck /> Name is valid
                 </span>
               ) : null}
-              {hasSpecialChars(firstName) ||
-              hasNumber(firstName) ||
-              firstName.length === 0 ? (
+              {!isNameValid(firstName) ? (
                 <span>
                   <span>Name is not Valid: </span>
                   {firstName.length === 0 ? (
@@ -126,11 +161,15 @@ const NewUserModal = (props) => {
               onChange={(e) => setLastName(e.target.value)}
             />
             <Form.Text>
-              <span className="text-success">
-                <FaCheck /> Last Name is valid
-              </span>
+              {isNameValid(lastName) ? (
+                <span className="text-success">
+                  <FaCheck /> Last Name is valid
+                </span>
+              ) : null}
               <span>
-                <span>Name is not Valid: </span>
+                {!isNameValid(lastName) ? (
+                  <span>Name is not Valid: </span>
+                ) : null}
                 {hasSpecialChars(lastName) ? (
                   <span className="text-danger">
                     <FaTimes /> No Special Characters{" "}
@@ -140,6 +179,9 @@ const NewUserModal = (props) => {
                   <span className="text-danger">
                     <FaTimes /> No Numbers
                   </span>
+                ) : null}
+                {lastName.length === 0 ? (
+                  <span className="text-danger">Required</span>
                 ) : null}
               </span>
             </Form.Text>
@@ -154,12 +196,21 @@ const NewUserModal = (props) => {
               onChange={(e) => setEmailAddress(e.target.value)}
             />
             <Form.Text>
-              <span className="text-success">
-                <FaCheck /> Email Address is valid{" "}
-              </span>
-              <span className="text-danger">
-                <FaTimes /> Email Address is not valid
-              </span>
+              {validateEmail(emailAddress) ? (
+                <span className="text-success">
+                  <FaCheck /> Email Address is valid{" "}
+                </span>
+              ) : null}
+              {emailAddress.length === 0 ? (
+                <span className="text-danger">
+                  <FaAsterisk /> Required{" "}
+                </span>
+              ) : null}
+              {emailAddress.length > 0 && !validateEmail(emailAddress) ? (
+                <span className="text-danger">
+                  <FaTimes /> Email Address is not valid
+                </span>
+              ) : null}
             </Form.Text>
           </Form.Group>
           <Form.Group className="mb-3">
@@ -172,20 +223,33 @@ const NewUserModal = (props) => {
               onChange={(e) => setPassword(e.target.value)}
             />
             <Form.Text>
-              <span className="text-success">
-                <FaCheck /> Password is valid
-              </span>
+              {isPasswordValid() ? (
+                <span className="text-success">
+                  <FaCheck /> Password is valid
+                </span>
+              ) : null}
               <span>
-                Password needs:{" "}
-                <span className="text-info">
-                  <FaAsterisk /> 1 Capital Letter{" "}
-                </span>
-                <span className="text-info">
-                  <FaAsterisk /> 1 Symbol{" "}
-                </span>
-                <span className="text-info">
-                  <FaAsterisk /> 10 Characters long
-                </span>
+                {!isPasswordValid() ? <>Password needs: </> : null}
+                {!containsUppercase(password) ? (
+                  <span className="text-info">
+                    <FaAsterisk /> Needs 1 Capital Letter{" "}
+                  </span>
+                ) : null}
+                {!hasSpecialChars(password) ? (
+                  <span className="text-info">
+                    <FaAsterisk /> Needs 1 Symbol{" "}
+                  </span>
+                ) : null}
+                {password.length < 10 ? (
+                  <span className="text-info">
+                    <FaAsterisk /> Password too short{" "}
+                  </span>
+                ) : null}
+                {password.length === 0 ? (
+                  <span className="text-danger">
+                    <FaAsterisk /> Required
+                  </span>
+                ) : null}
               </span>{" "}
             </Form.Text>
           </Form.Group>
@@ -230,6 +294,11 @@ const NewUserModal = (props) => {
             {address.length === 0 ? (
               <Form.Text className="text-danger">Address is Required</Form.Text>
             ) : null}
+            {address.length > 0 ? (
+              <Form.Text className="text-success">
+                <FaCheck /> Address field is Filled
+              </Form.Text>
+            ) : null}
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>City</Form.Label>
@@ -241,11 +310,13 @@ const NewUserModal = (props) => {
               onChange={(e) => setCity(e.target.value)}
             />
             <Form.Text>
-              <span className="text-success">
-                <FaCheck /> City is valid
-              </span>
+              {isNameValid(city) ? (
+                <span className="text-success">
+                  <FaCheck /> City is valid
+                </span>
+              ) : null}
               <span>
-                City is not valid:{" "}
+                {!isNameValid(city) ? <>City is not valid: </> : null}
                 {hasSpecialChars(city) ? (
                   <span className="text-danger">
                     <FaTimes /> No Special Characters{" "}
@@ -256,10 +327,23 @@ const NewUserModal = (props) => {
                     <FaTimes /> No Numbers{" "}
                   </span>
                 ) : null}
+                {city.length === 0 ? (
+                  <span>
+                    <FaAsterisk /> Required
+                  </span>
+                ) : null}
               </span>
             </Form.Text>
           </Form.Group>
-          <Button onClick={addUser}>Add New User</Button>
+          {isNewUserValid() ? (
+            <Button onClick={addUser}>Add New User</Button>
+          ) : null}
+          {!isNewUserValid() ? (
+            <p className="m-0 text-primary fst-italic">
+              Please fill all fields correctly to{" "}
+              <span className="fw-bolder">Add New User</span>{" "}
+            </p>
+          ) : null}
         </Form>
       </Modal.Body>
       <Modal.Footer>
