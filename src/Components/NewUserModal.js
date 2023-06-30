@@ -245,6 +245,11 @@ const NewUserModal = (props) => {
               {Array.from(list).map((item, index) => (
                 <ListGroup.Item key={index}>{item.altEmail}</ListGroup.Item>
               ))}
+              {list.size === 0 ? (
+                <span className="fst-italic opacity-50">
+                  No Alternative numbers added
+                </span>
+              ) : null}
             </ListGroup>
           </Form.Group>
 
