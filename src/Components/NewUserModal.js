@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Form } from "react-bootstrap";
+import { Form, ListGroup } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Swal from "sweetalert2";
 import moment from "moment";
 import { FaAsterisk, FaCheck, FaTimes } from "react-icons/fa";
+import { v4 as uuidv4 } from "uuid";
+import AddItem from "./AddItem";
 
 const NewUserModal = (props) => {
   const [firstName, setFirstName] = useState("");
@@ -104,6 +106,20 @@ const NewUserModal = (props) => {
     );
   };
 
+  const altEmailList = new Set([]);
+  const [list, setList] = React.useState(altEmailList);
+  const [altEmail, setAltEmail] = React.useState("");
+
+  function handleChange(event) {
+    setAltEmail(event.target.value);
+  }
+
+  function handleAdd() {
+    const newAltEmailList = Array.from(list).concat({ altEmail, id: uuidv4() });
+    setList(newAltEmailList);
+    setAltEmail("");
+  }
+
   return (
     <Modal
       {...props}
@@ -186,6 +202,7 @@ const NewUserModal = (props) => {
               </span>
             </Form.Text>
           </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>Email address</Form.Label>
             <Form.Control
@@ -213,6 +230,24 @@ const NewUserModal = (props) => {
               ) : null}
             </Form.Text>
           </Form.Group>
+
+          <AddItem
+            altEmail={altEmail}
+            onChange={handleChange}
+            onAdd={handleAdd}
+          />
+
+          <Form.Group className="p-3 border rounded mb-3 border-2">
+            <Form.Label>
+              <h2 className="fs-6">Added Alternative Emails</h2>
+            </Form.Label>
+            <ListGroup variant="flush">
+              {Array.from(list).map((item, index) => (
+                <ListGroup.Item key={index}>{item.altEmail}</ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>Password</Form.Label>
             <Form.Control
@@ -328,7 +363,7 @@ const NewUserModal = (props) => {
                   </span>
                 ) : null}
                 {city.length === 0 ? (
-                  <span>
+                  <span className="text-danger">
                     <FaAsterisk /> Required
                   </span>
                 ) : null}
