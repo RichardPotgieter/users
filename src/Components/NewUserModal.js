@@ -4,9 +4,10 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Swal from "sweetalert2";
 import moment from "moment";
-import { FaAsterisk, FaCheck, FaTimes } from "react-icons/fa";
+import { FaAsterisk, FaCheck, FaEdit, FaTimes, FaTrash } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 import AddItem from "./AddItem";
+import EditItem from "./EditItem";
 
 const NewUserModal = (props) => {
   const [firstName, setFirstName] = useState("");
@@ -109,6 +110,7 @@ const NewUserModal = (props) => {
   const altEmailList = new Set([]);
   const [list, setList] = React.useState(altEmailList);
   const [altEmail, setAltEmail] = React.useState("");
+  const [updateState, setUpdateState] = useState(-1);
 
   function handleChange(event) {
     setAltEmail(event.target.value);
@@ -119,6 +121,19 @@ const NewUserModal = (props) => {
     setList(newAltEmailList);
     setAltEmail("");
   }
+
+  const handleEdit = (id) => {
+    setUpdateState(id);
+  };
+
+  const deleteAltEmail = (id) => {
+    const newList = list.filter((li) => li.id !== id);
+    setList(newList);
+  };
+
+  const handleUpdate = () => {
+    setUpdateState(-1);
+  };
 
   return (
     <Modal
@@ -242,9 +257,37 @@ const NewUserModal = (props) => {
               <h2 className="fs-6">Added Alternative Emails</h2>
             </Form.Label>
             <ListGroup variant="flush">
-              {Array.from(list).map((item, index) => (
-                <ListGroup.Item key={index}>{item.altEmail}</ListGroup.Item>
-              ))}
+              {Array.from(list).map((item, index) =>
+                updateState === item.id ? (
+                  <EditItem
+                    list={list}
+                    setList={setList}
+                    item={item}
+                    handleUpdate={handleUpdate}
+                  />
+                ) : (
+                  <ListGroup.Item key={index}>
+                    <span className="d-flex justify-content-between align-items-center">
+                      {item.altEmail}
+                      <span className="d-flex gap-2">
+                        <Button
+                          className="d-flex align-items-center"
+                          onClick={() => handleEdit(item.id)}
+                        >
+                          <FaEdit />
+                        </Button>
+                        <Button
+                          className="d-flex align-items-center"
+                          variant="danger"
+                          onClick={() => deleteAltEmail(item.id)}
+                        >
+                          <FaTrash />
+                        </Button>
+                      </span>
+                    </span>
+                  </ListGroup.Item>
+                )
+              )}
               {list.size === 0 ? (
                 <span className="fst-italic opacity-50">
                   No Alternative numbers added
