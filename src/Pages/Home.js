@@ -10,6 +10,7 @@ const Home = () => {
   const [modalShow, setModalShow] = React.useState(false);
   const [editModalShow, setEditModalShow] = React.useState(false);
   const [userinfo, setUserinfo] = useState([]);
+  const [altData, setAltData] = useState([]);
 
   const fetchData = async () => {
     const newData = await fetch("/get", {
@@ -21,6 +22,18 @@ const Home = () => {
     }).then((res) => res.json());
 
     setReturnedData(newData);
+  };
+
+  const fetchAltEmails = async () => {
+    const newData = await fetch("/getAltEmails", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    }).then((res) => res.json());
+
+    setAltData(newData);
   };
 
   const deleteUser = async (deleteID) => {
@@ -71,9 +84,12 @@ const Home = () => {
 
   useEffect(() => {
     fetchData();
+    fetchAltEmails();
   }, []);
 
-  useEffect(() => {}, [returnedData]);
+  useEffect(() => {
+    console.log(altData);
+  }, [returnedData, altData]);
 
   return (
     <main className="bg-dark vh-100 text-light">
@@ -88,58 +104,96 @@ const Home = () => {
             New User
           </Button>
         </section>
-        <Table striped bordered hover className="rounded overflow-hidden mt-3">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Email Address</th>
-              <th>Password</th>
-              <th>Number</th>
-              <th>Address</th>
-              <th>City</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {returnedData.map((data, index) => {
-              return (
-                <tr key={index}>
-                  <td>{data.PersonID}</td>
-                  <td>{data.FirstName}</td>
-                  <td>{data.LastName}</td>
-                  <td>{data.EmailAddress}</td>
-                  <td>{data.Password}</td>
-                  <td>0{data.Number}</td>
-                  <td>{data.Address}</td>
-                  <td>{data.City}</td>
-                  <td>
-                    <ButtonGroup>
-                      <Button
-                        variant="info"
-                        onClick={() => {
-                          getUserInfo(data.PersonID);
-                          setEditModalShow(true);
-                        }}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="danger"
-                        name="deleteID"
-                        value={data.PersonID}
-                        onClick={confirmDelete}
-                      >
-                        Delete
-                      </Button>
-                    </ButtonGroup>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
+        <section>
+          <Table
+            striped
+            bordered
+            hover
+            className="rounded overflow-hidden mt-3"
+          >
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email Address</th>
+                <th>Password</th>
+                <th>Number</th>
+                <th>Address</th>
+                <th>City</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {returnedData.map((data, index) => {
+                return (
+                  <tr key={index}>
+                    <td>{data.PersonID}</td>
+                    <td>{data.FirstName}</td>
+                    <td>{data.LastName}</td>
+                    <td>{data.EmailAddress}</td>
+                    <td>{data.Password}</td>
+                    <td>0{data.Number}</td>
+                    <td>{data.Address}</td>
+                    <td>{data.City}</td>
+                    <td>
+                      <ButtonGroup>
+                        <Button
+                          variant="info"
+                          onClick={() => {
+                            getUserInfo(data.PersonID);
+                            setEditModalShow(true);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="danger"
+                          name="deleteID"
+                          value={data.PersonID}
+                          onClick={confirmDelete}
+                        >
+                          Delete
+                        </Button>
+                      </ButtonGroup>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </section>
+        <section>
+          <h2>Alternative Emails</h2>
+          <Table
+            striped
+            bordered
+            hover
+            className="rounded mt-3 shadow border-secondary"
+            variant="dark"
+          >
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email Address</th>
+                <th style={{ width: "fit-content" }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {altData.map((data, index) => {
+                return (
+                  <tr key={index}>
+                    <td>{data.PersonID}</td>
+                    <td>{data.AltEmail}</td>
+                    <td style={{ width: "fit-content" }}>
+                      <Button>View User Emails</Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </section>
       </Col>
       <NewUserModal
         show={modalShow}

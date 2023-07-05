@@ -12,6 +12,34 @@ const getAllUsers = async () => {
   }
 };
 
+const addAltEmail = async (id, email, emailId) => {
+  try {
+    let pool = await sql.connect(config);
+    let addAlt = await pool
+      .request()
+      .input("PersonID", String(id))
+      .input("AltEmail", String(email))
+      .input("EmailID", String(emailId))
+      .query(
+        `INSERT INTO AltEmails (PersonID, AltEmail, EmailID) VALUES (@PersonID, @AltEmail, @EmailID)`
+      );
+    return addAlt;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getAltEmails = async () => {
+  try {
+    let pool = await sql.connect(config);
+    let alt = await pool.request().query(`SELECT * from AltEmails`);
+    return alt;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
 const addUser = async (
   id,
   lastName,
@@ -93,4 +121,6 @@ module.exports = {
   addUser,
   deleteUser,
   updateUser,
+  addAltEmail,
+  getAltEmails,
 };

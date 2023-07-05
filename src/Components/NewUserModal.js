@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, ListGroup } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -8,6 +8,7 @@ import { FaAsterisk, FaCheck, FaEdit, FaTimes, FaTrash } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 import AddItem from "./AddItem";
 import EditItem from "./EditItem";
+var _ = require("lodash");
 
 const NewUserModal = (props) => {
   const [firstName, setFirstName] = useState("");
@@ -17,6 +18,8 @@ const NewUserModal = (props) => {
   const [number, setNumber] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
+  const [listIndex, setListIndex] = useState("");
+  const [currentAltEmail, setCurrentAltEmail] = useState("");
 
   const clearForm = () => {
     setFirstName("");
@@ -28,6 +31,9 @@ const NewUserModal = (props) => {
     setCity("");
   };
 
+  const id =
+    firstName.slice(0, 3) + lastName.slice(0, 3) + moment().format("x");
+
   const addUser = async () => {
     const newData = await fetch(`/addUser`, {
       method: "POST",
@@ -36,7 +42,7 @@ const NewUserModal = (props) => {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        id: firstName.slice(0, 3) + lastName.slice(0, 3) + moment().format("x"),
+        id: id,
         lastName: lastName,
         firstName: firstName,
         address: address,
@@ -49,8 +55,28 @@ const NewUserModal = (props) => {
 
     if (newData.res[0]) {
       Swal.fire({ icon: "success", title: "User Added" });
+      addAllAltEmails();
       clearForm();
       props.onHide();
+    }
+  };
+
+  const addAltEmail = async (id, currentAltEmail, emailId) => {
+    const newData = await fetch(`/addAltEmail`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        email: currentAltEmail,
+        emailId: emailId,
+      }),
+    }).then((res) => res.json());
+
+    if (newData.res[0]) {
+      console.log("Alt Email Added");
     }
   };
 
@@ -134,6 +160,15 @@ const NewUserModal = (props) => {
   const handleUpdate = () => {
     setUpdateState(-1);
   };
+
+  const addAllAltEmails = () => {
+    list.forEach(function (item, index) {
+      const EmailIdNo = id + (index + 1);
+      addAltEmail(id, item.altEmail, EmailIdNo);
+    });
+  };
+
+  useEffect(() => {}, [list]);
 
   return (
     <Modal
@@ -260,6 +295,7 @@ const NewUserModal = (props) => {
               {Array.from(list).map((item, index) =>
                 updateState === item.id ? (
                   <EditItem
+                    key={index}
                     list={list}
                     setList={setList}
                     item={item}
