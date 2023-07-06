@@ -3,14 +3,18 @@ import { Button, ButtonGroup, Col, Table } from "react-bootstrap";
 import NewUserModal from "../Components/NewUserModal";
 import Swal from "sweetalert2";
 import EditUserModal from "../Components/EditUserModal";
+import AltEmailsModal from "../Components/AltEmailsModal";
 const _ = require("lodash");
 
 const Home = () => {
   const [returnedData, setReturnedData] = useState([`Hi There`]);
   const [modalShow, setModalShow] = React.useState(false);
   const [editModalShow, setEditModalShow] = React.useState(false);
+  const [altModalShow, setAltModalShow] = React.useState(false);
   const [userinfo, setUserinfo] = useState([]);
   const [altData, setAltData] = useState([]);
+  const [userAltEmails, setUserAltEmails] = useState("");
+  const [altEmails, setAltEmails] = useState("");
 
   const fetchData = async () => {
     const newData = await fetch("/get", {
@@ -82,14 +86,19 @@ const Home = () => {
     setUserinfo(info);
   };
 
+  const getUserAltEmails = (userID) => {
+    let emails = _.filter(altData, ["PersonID", userID]);
+
+    setUserAltEmails(userID);
+    setAltEmails(emails);
+  };
+
   useEffect(() => {
     fetchData();
     fetchAltEmails();
-  }, []);
+  }, [userAltEmails, altEmails]);
 
-  useEffect(() => {
-    console.log(altData);
-  }, [returnedData, altData]);
+  useEffect(() => {}, [returnedData, altData]);
 
   return (
     <main className="bg-dark vh-100 text-light">
@@ -176,7 +185,7 @@ const Home = () => {
               <tr>
                 <th>User</th>
                 <th>Email Address</th>
-                <th style={{ width: "fit-content" }}></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -185,8 +194,15 @@ const Home = () => {
                   <tr key={index}>
                     <td>{data.PersonID}</td>
                     <td>{data.AltEmail}</td>
-                    <td style={{ width: "fit-content" }}>
-                      <Button>View User Emails</Button>
+                    <td>
+                      <Button
+                        onClick={() => {
+                          getUserAltEmails(data.PersonID);
+                          setAltModalShow(true);
+                        }}
+                      >
+                        View User Emails
+                      </Button>
                     </td>
                   </tr>
                 );
@@ -198,8 +214,9 @@ const Home = () => {
       <NewUserModal
         show={modalShow}
         onHide={() => {
-          setModalShow(false);
           fetchData();
+          fetchAltEmails();
+          setModalShow(false);
         }}
         returneddata={returnedData}
       />
@@ -209,6 +226,16 @@ const Home = () => {
         returneddata={returnedData}
         userinfo={userinfo}
         onClick={fetchData}
+      />
+      <AltEmailsModal
+        show={altModalShow}
+        onHide={() => setAltModalShow(false)}
+        onClick={() => {
+          fetchData();
+          fetchAltEmails();
+        }}
+        user_alt_emails={userAltEmails}
+        alt_emails={altEmails}
       />
     </main>
   );
