@@ -29,29 +29,29 @@ const EditItem = ({ item, list, setList, handleUpdate }) => {
         type="email"
         placeholder="name@example.com"
         name="altEmail"
-        defaultValue={item.altEmail}
-        onChange={handleInput}
+        defaultValue={item.AltEmail}
+        // onChange={handleInput}
         className="shadow-sm"
-        // onChange={(e) => setAlt(e.target.value)}
+        onChange={(e) => setAlt(e.target.value)}
       />
       <div className="d-flex flex-wrap gap-2 mt-2">
-        {validateEmail(item.altEmail) ? (
+        {validateEmail(item.AltEmail) ? (
           <Button variant="success" onClick={handleUpdate}>
             Update
           </Button>
         ) : null}
         <Form.Text>
-          {validateEmail(item.altEmail) ? (
+          {validateEmail(item.AltEmail) ? (
             <span className="text-success">
               <FaCheck /> Email Address is valid{" "}
             </span>
           ) : null}
-          {item.altEmail.length === 0 ? (
+          {item.AltEmail.length === 0 ? (
             <span className="text-danger">
               <FaAsterisk /> Required{" "}
             </span>
           ) : null}
-          {item.altEmail.length > 0 && !validateEmail(item.altEmail) ? (
+          {item.AltEmail.length > 0 && !validateEmail(item.AltEmail) ? (
             <span className="text-danger">
               <FaTimes /> Email Address is not valid
             </span>

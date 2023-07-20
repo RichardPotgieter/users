@@ -4,6 +4,7 @@ import AddItem from "./AddItem";
 import { v4 as uuidv4 } from "uuid";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import EditItem from "./EditItem";
+import Swal from "sweetalert2";
 
 const AltEmailsModal = (props) => {
   let fetchEmails = props.alt_emails;
@@ -77,7 +78,9 @@ const AltEmailsModal = (props) => {
                         <span className="d-flex gap-2">
                           <Button
                             className="d-flex align-items-center"
-                            onClick={() => handleEdit(item.EmailID)}
+                            onClick={() => {
+                              handleEdit(item.EmailID);
+                            }}
                           >
                             <FaEdit />
                           </Button>

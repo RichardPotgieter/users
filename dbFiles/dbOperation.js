@@ -12,16 +12,17 @@ const getAllUsers = async () => {
   }
 };
 
-const addAltEmail = async (id, email, emailId) => {
+const addAltEmail = async (Email) => {
   try {
     let pool = await sql.connect(config);
     let addAlt = await pool
       .request()
-      .input("PersonID", String(id))
-      .input("AltEmail", String(email))
-      .input("EmailID", String(emailId))
+      .input("PersonID", String(Email.id))
+      .input("AltEmail", String(Email.email))
+      .input("EmailID", String(Email.emailId))
+      .input("formID", Number(Email.formID))
       .query(
-        `INSERT INTO AltEmails (PersonID, AltEmail, EmailID) VALUES (@PersonID, @AltEmail, @EmailID)`
+        `INSERT INTO AltEmails (PersonID, AltEmail, EmailID, formID) VALUES (@PersonID, @AltEmail, @EmailID, @formID)`
       );
     return addAlt;
   } catch (error) {
@@ -48,7 +49,8 @@ const addUser = async (
   city,
   emailAddress,
   password,
-  number
+  number,
+  formID
 ) => {
   try {
     let pool = await sql.connect(config);
@@ -61,9 +63,10 @@ const addUser = async (
       .input("City", String(city))
       .input("EmailAddress", String(emailAddress))
       .input("Password", String(password))
-      .input("Number", Number(number)).query(`
+      .input("Number", Number(number))
+      .input("formID", Number(formID)).query(`
         INSERT INTO Users (PersonID, LastName, FirstName, Address, City, EmailAddress, Password, Number)
-        VALUES (@PersonID, @LastName, @FirstName, @Address, @City, @EmailAddress, @Password, @Number)
+        VALUES (@PersonID, @LastName, @FirstName, @Address, @City, @EmailAddress, @Password, @Number); SELECT SCOPE_IDENTITY() as formID
       `);
     return user;
   } catch (error) {
@@ -103,6 +106,24 @@ const updateUser = async (
   }
 };
 
+const changeAltEmail = async (emailId, altEmail) => {
+  try {
+    console.log(emailId, altEmail);
+    let pool = await sql.connect(config);
+    let result = await pool
+      .request()
+      .input("EmailID", String(emailId))
+      .input("AltEmail", String(altEmail)).query(`
+      UPDATE AltEmails
+      SET AltEmail = @AltEmail
+      WHERE EmailID = @EmailID
+      `);
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const deleteUser = async (id) => {
   try {
     let pool = await sql.connect(config);
@@ -123,4 +144,5 @@ module.exports = {
   updateUser,
   addAltEmail,
   getAltEmails,
+  changeAltEmail,
 };

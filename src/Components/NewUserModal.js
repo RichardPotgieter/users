@@ -35,6 +35,17 @@ const NewUserModal = (props) => {
     firstName.slice(0, 3) + lastName.slice(0, 3) + moment().format("x");
 
   const addUser = async () => {
+    let altEmails = [];
+
+    list.forEach(function (item, index) {
+      const EmailIdNo = id + (index + 1);
+      altEmails.push({
+        id: id,
+        email: item.altEmail,
+        emailId: EmailIdNo,
+      });
+    });
+
     const newData = await fetch(`/addUser`, {
       method: "POST",
       headers: {
@@ -50,12 +61,12 @@ const NewUserModal = (props) => {
         emailAddress: emailAddress,
         password: password,
         number: number,
+        altEmails: altEmails,
       }),
     }).then((res) => res.json());
 
-    if (newData.res[0]) {
+    if (newData !== undefined) {
       Swal.fire({ icon: "success", title: "User Added" });
-      addAllAltEmails();
       clearForm();
       props.onHide();
     }
@@ -168,7 +179,9 @@ const NewUserModal = (props) => {
     });
   };
 
-  useEffect(() => {}, [list]);
+  useEffect(() => {
+    console.log(list);
+  }, [list]);
 
   return (
     <Modal

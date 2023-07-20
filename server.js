@@ -1,6 +1,7 @@
 const express = require("express");
 const dbOperation = require("./dbFiles/dbOperation");
 const cors = require("cors");
+const _ = require("lodash");
 
 const API_PORT = process.env.PORT || 8000;
 const app = express();
@@ -47,22 +48,64 @@ app.post("/addUser", async (req, res) => {
   let number = req.body.number;
   let address = req.body.address;
   let city = req.body.city;
+  let formID = req.body.formID;
+  let altEmails = req.body.altEmails;
 
-  const result = await dbOperation.addUser(
-    id,
-    lastName,
-    firstName,
-    address,
-    city,
-    emailAddress,
-    password,
-    number
-  );
+  const result = await dbOperation
+    .addUser(
+      id,
+      lastName,
+      firstName,
+      address,
+      city,
+      emailAddress,
+      password,
+      number,
+      formID
+    )
+    .then(async (res) => {
+      let resultData = res.recordset;
+      if (resultData !== undefined && resultData.length > 0) {
+        let user = resultData[0];
 
-  if (result) {
-    console.log("User Added");
-    res.send({ res: result.rowsAffected });
-  }
+        let userFormID = user.formID;
+
+        if (altEmails.length > 0) {
+          _.map(altEmails, async (email) => {
+            email.formID = userFormID;
+
+            const data = await dbOperation
+              .addAltEmail(email)
+              .then(async (res) => {
+                let affectedRows = res.rowsAffected;
+                if (
+                  affectedRows !== undefined &&
+                  undefined &&
+                  affectedRows.length > 0
+                ) {
+                  return affectedRows[0];
+                } else {
+                  return 0;
+                }
+              });
+
+            if (data > 0) {
+              // Row inserted
+            }
+          });
+        }
+        return user;
+      } else {
+        return [];
+      }
+    });
+
+  res.set("Access-Control-Allow-Origin", "*");
+  res.send({
+    result: {
+      formID: result.formID,
+    },
+  });
 });
 
 app.post("/deleteUser", async (req, res) => {
@@ -95,6 +138,18 @@ app.post("/updateUser", async (req, res) => {
 
   if (result) {
     console.log("User Updated");
+    res.send({ res: result.rowsAffected });
+  }
+});
+
+app.post("/changeAltEmail", async (req, res) => {
+  let id = req.body.id;
+  let email = req.body.email;
+
+  const result = await dbOperation.changeAltEmail(id, email);
+
+  if (result) {
+    console.log("Alt email changed");
     res.send({ res: result.rowsAffected });
   }
 });
