@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { FaAsterisk, FaCheck, FaTimes } from "react-icons/fa";
+import NewUserModal from "./NewUserModal";
+import AltEmailsModal from "./AltEmailsModal";
 
-const EditItem = ({ item, list, setList, handleUpdate }) => {
+const EditItem = ({ item, list, setList, handleUpdate, component }) => {
   const [alt, setAlt] = useState("");
   const validateEmail = (email) => {
     return String(email)
@@ -29,29 +31,53 @@ const EditItem = ({ item, list, setList, handleUpdate }) => {
         type="email"
         placeholder="name@example.com"
         name="altEmail"
-        defaultValue={item.altEmail}
+        defaultValue={
+          component === NewUserModal ? item.altEmail : item.AltEmail
+        }
         onChange={handleInput}
         className="shadow-sm"
         // onChange={(e) => setAlt(e.target.value)}
       />
       <div className="d-flex flex-wrap gap-2 mt-2">
-        {validateEmail(item.altEmail) ? (
+        {validateEmail(
+          component === NewUserModal ? item.altEmail : item.AltEmail
+        ) ? (
           <Button variant="success" onClick={handleUpdate}>
             Update
           </Button>
         ) : null}
         <Form.Text>
-          {validateEmail(item.altEmail) ? (
+          {validateEmail(
+            component === NewUserModal ? item.altEmail : item.AltEmail
+          ) ? (
             <span className="text-success">
               <FaCheck /> Email Address is valid{" "}
             </span>
           ) : null}
-          {item.altEmail.length === 0 ? (
+
+          {component === NewUserModal && item.altEmail.length === 0 ? (
             <span className="text-danger">
               <FaAsterisk /> Required{" "}
             </span>
           ) : null}
-          {item.altEmail.length > 0 && !validateEmail(item.altEmail) ? (
+
+          {component === AltEmailsModal && item.AltEmail.length === 0 ? (
+            <span className="text-danger">
+              <FaAsterisk /> Required{" "}
+            </span>
+          ) : null}
+
+          {component === NewUserModal &&
+          item.altEmail.length > 0 &&
+          !validateEmail(item.altEmail) ? (
+            <span className="text-danger">
+              <FaTimes /> Email Address is not valid
+            </span>
+          ) : null}
+
+          {component === AltEmailsModal &&
+          item.AltEmail.length > 0 &&
+          !validateEmail(item.AltEmail) ? (
             <span className="text-danger">
               <FaTimes /> Email Address is not valid
             </span>

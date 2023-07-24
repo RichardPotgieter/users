@@ -313,6 +313,7 @@ const NewUserModal = (props) => {
                     setList={setList}
                     item={item}
                     handleUpdate={handleUpdate}
+                    component={NewUserModal}
                   />
                 ) : (
                   <ListGroup.Item key={index}>

@@ -70,6 +70,7 @@ const AltEmailsModal = (props) => {
                       setList={setList}
                       item={item}
                       handleUpdate={handleUpdate}
+                      component={AltEmailsModal}
                     />
                   ) : (
                     <ListGroup.Item key={index}>

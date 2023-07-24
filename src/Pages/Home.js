@@ -101,7 +101,7 @@ const Home = () => {
   useEffect(() => {}, [returnedData, altData]);
 
   return (
-    <main className="bg-dark vh-100 text-light">
+    <main className="bg-dark text-light">
       <Col md={10} className="mx-auto pt-5 pb-5">
         <section className="d-flex justify-content-between">
           <h1>Users</h1>
