@@ -154,4 +154,15 @@ app.post("/changeAltEmail", async (req, res) => {
   }
 });
 
+app.post("/deleteAltEmail", async (req, res) => {
+  let id = req.body.id;
+
+  const result = await dbOperation.deleteAltEmail(id);
+
+  if (result) {
+    console.log("Alt email removed");
+    res.send({ res: result.rowsAffected });
+  }
+});
+
 app.listen(API_PORT, () => console.log(`Listening on port ${API_PORT}`));

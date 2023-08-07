@@ -15,6 +15,7 @@ const Home = () => {
   const [altData, setAltData] = useState([]);
   const [userAltEmails, setUserAltEmails] = useState("");
   const [altEmails, setAltEmails] = useState("");
+  const [list, setList] = useState([]);
 
   const fetchData = async () => {
     const newData = await fetch("/get", {
@@ -80,6 +81,7 @@ const Home = () => {
   };
 
   let info = "";
+  let emails = "";
 
   const getUserInfo = (userID) => {
     info = _.filter(returnedData, ["PersonID", userID]);
@@ -87,10 +89,9 @@ const Home = () => {
   };
 
   const getUserAltEmails = (userID) => {
-    let emails = _.filter(altData, ["PersonID", userID]);
-
+    setList(_.filter(altData, ["PersonID", userID]));
+    console.log("List", list);
     setUserAltEmails(userID);
-    setAltEmails(emails);
   };
 
   useEffect(() => {
@@ -98,7 +99,7 @@ const Home = () => {
     fetchAltEmails();
   }, [userAltEmails, altEmails]);
 
-  useEffect(() => {}, [returnedData, altData]);
+  useEffect(() => {}, [returnedData, altData, altEmails, altData]);
 
   return (
     <main className="bg-dark text-light">
@@ -197,8 +198,8 @@ const Home = () => {
                     <td>
                       <Button
                         onClick={() => {
-                          getUserAltEmails(data.PersonID);
                           setAltModalShow(true);
+                          getUserAltEmails(data.PersonID);
                         }}
                       >
                         View User Emails
@@ -225,10 +226,12 @@ const Home = () => {
         onHide={() => setEditModalShow(false)}
         returneddata={returnedData}
         userinfo={userinfo}
-        onClick={fetchData}
+        onClick={() => fetchData()}
       />
       <AltEmailsModal
         show={altModalShow}
+        returneddata={returnedData}
+        altdata={altData}
         onHide={() => setAltModalShow(false)}
         onClick={() => {
           fetchData();
@@ -236,6 +239,7 @@ const Home = () => {
         }}
         user_alt_emails={userAltEmails}
         alt_emails={altEmails}
+        list={list}
       />
     </main>
   );

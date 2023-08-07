@@ -137,6 +137,19 @@ const deleteUser = async (id) => {
   }
 };
 
+const deleteAltEmail = async (id) => {
+  try {
+    let pool = await sql.connect(config);
+    let result = await pool
+      .request()
+      .input("EmailID", String(id))
+      .query(`DELETE FROM AltEmails WHERE EmailID = @EmailID`);
+    return result;
+  } catch (error) {
+    console.log("deleteAltEmail error", error);
+  }
+};
+
 module.exports = {
   getAllUsers,
   addUser,
@@ -145,4 +158,5 @@ module.exports = {
   addAltEmail,
   getAltEmails,
   changeAltEmail,
+  deleteAltEmail,
 };
