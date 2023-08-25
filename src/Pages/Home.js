@@ -90,16 +90,15 @@ const Home = () => {
 
   const getUserAltEmails = (userID) => {
     setList(_.filter(altData, ["PersonID", userID]));
-    console.log("List", list);
     setUserAltEmails(userID);
   };
 
   useEffect(() => {
     fetchData();
     fetchAltEmails();
-  }, [userAltEmails, altEmails]);
+  }, []);
 
-  useEffect(() => {}, [returnedData, altData, altEmails, altData]);
+  // useEffect(() => {}, [returnedData, altData, altEmails, altData]);
 
   return (
     <main className="bg-dark text-light">
@@ -152,6 +151,7 @@ const Home = () => {
                           variant="info"
                           onClick={() => {
                             getUserInfo(data.PersonID);
+                            getUserAltEmails(data.PersonID);
                             setEditModalShow(true);
                           }}
                         >
@@ -226,7 +226,13 @@ const Home = () => {
         onHide={() => setEditModalShow(false)}
         returneddata={returnedData}
         userinfo={userinfo}
-        onClick={() => fetchData()}
+        altdata={altData}
+        user_alt_emails={userAltEmails}
+        alt_emails={altEmails}
+        onClick={() => {
+          fetchData();
+          fetchAltEmails();
+        }}
       />
       <AltEmailsModal
         show={altModalShow}

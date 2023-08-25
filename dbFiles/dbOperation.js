@@ -13,6 +13,8 @@ const getAllUsers = async () => {
 };
 
 const addAltEmail = async (Email) => {
+  console.log("addAltEmail");
+  console.log("Email", Email);
   try {
     let pool = await sql.connect(config);
     let addAlt = await pool
@@ -21,6 +23,26 @@ const addAltEmail = async (Email) => {
       .input("AltEmail", String(Email.email))
       .input("EmailID", String(Email.emailId))
       .input("formID", Number(Email.formID))
+      .query(
+        `INSERT INTO AltEmails (PersonID, AltEmail, EmailID, formID) VALUES (@PersonID, @AltEmail, @EmailID, @formID)`
+      );
+    return addAlt;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const addAltEmailModal = async (PersonID, AltEmail, EmailID, formID) => {
+  console.log("addAltEmailModal");
+  console.log("PersonID", PersonID);
+  try {
+    let pool = await sql.connect(config);
+    let addAlt = await pool
+      .request()
+      .input("PersonID", PersonID)
+      .input("AltEmail", AltEmail)
+      .input("EmailID", EmailID)
+      .input("formID", formID)
       .query(
         `INSERT INTO AltEmails (PersonID, AltEmail, EmailID, formID) VALUES (@PersonID, @AltEmail, @EmailID, @formID)`
       );
@@ -159,4 +181,5 @@ module.exports = {
   getAltEmails,
   changeAltEmail,
   deleteAltEmail,
+  addAltEmailModal,
 };

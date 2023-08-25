@@ -39,6 +39,22 @@ app.post("/addAltEmail", async (req, res) => {
   }
 });
 
+app.post("/addAltEmailModal", async (req, res) => {
+  let id = req.body.id;
+  let email = req.body.email;
+  let emailId = req.body.emailId;
+  let formID = req.body.formID;
+
+  console.log("body", req.body);
+
+  const result = await dbOperation.addAltEmailModal(id, email, emailId, formID);
+
+  if (result) {
+    console.log("Modal: Alt Email Added");
+    res.send({ res: result.rowsAffected });
+  }
+});
+
 app.post("/addUser", async (req, res) => {
   let id = req.body.id;
   let firstName = req.body.firstName;
