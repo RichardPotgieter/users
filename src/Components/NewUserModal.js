@@ -1,16 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { Form, ListGroup } from "react-bootstrap";
+import React, { useEffect, useState, createRef } from "react";
+import { Form, Image, ListGroup } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Swal from "sweetalert2";
 import moment from "moment";
-import { FaAsterisk, FaCheck, FaEdit, FaTimes, FaTrash } from "react-icons/fa";
+import {
+  FaAsterisk,
+  FaCheck,
+  FaEdit,
+  FaImage,
+  FaTimes,
+  FaTrash,
+} from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 import AddItem from "./AddItem";
 import EditItem from "./EditItem";
+import styles from "./NewUserModal.module.scss";
+
 var _ = require("lodash");
 
 const NewUserModal = (props) => {
+  const fileInput = createRef();
+  const profilePicInput = createRef();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -20,6 +32,8 @@ const NewUserModal = (props) => {
   const [city, setCity] = useState("");
   const [listIndex, setListIndex] = useState("");
   const [currentAltEmail, setCurrentAltEmail] = useState("");
+  const [profilePicName, setProfilePicName] = useState("");
+  const [photoFile, setPhotoFile] = useState();
 
   const clearForm = () => {
     setFirstName("");
@@ -31,44 +45,68 @@ const NewUserModal = (props) => {
     setCity("");
   };
 
+  function containsWhitespace(str) {
+    return /\s/.test(str);
+  }
+
   const id =
     firstName.slice(0, 3) + lastName.slice(0, 3) + moment().format("x");
 
-  const addUser = async () => {
+  const addUser = async (e) => {
+    e.preventDefault();
     let altEmails = [];
 
-    list.forEach(function (item, index) {
-      const EmailIdNo = id + (index + 1);
-      altEmails.push({
-        id: id,
-        email: item.altEmail,
-        emailId: EmailIdNo,
+    const formData = new FormData();
+    formData.set("avatar", photoFile);
+    // console.log("photoFile", photoFile.name);
+
+    try {
+      const response = await fetch("/profile", {
+        method: "POST",
+        body: formData,
       });
-    });
 
-    const newData = await fetch(`/addUser`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        id: id,
-        lastName: lastName,
-        firstName: firstName,
-        address: address,
-        city: city,
-        emailAddress: emailAddress,
-        password: password,
-        number: number,
-        altEmails: altEmails,
-      }),
-    }).then((res) => res.json());
+      const parseResponse = await response.json();
+      if (response.ok) {
+        list.forEach(function (item, index) {
+          const EmailIdNo = id + (index + 1);
+          altEmails.push({
+            id: id,
+            email: item.altEmail,
+            emailId: EmailIdNo,
+          });
+        });
 
-    if (newData !== undefined) {
-      Swal.fire({ icon: "success", title: "User Added" });
-      clearForm();
-      props.onHide();
+        const newData = await fetch(`/addUser`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            id: id,
+            lastName: lastName,
+            firstName: firstName,
+            address: address,
+            city: city,
+            emailAddress: emailAddress,
+            password: password,
+            number: number,
+            altEmails: altEmails,
+            photo: photoFile.name,
+          }),
+        }).then((res) => res.json());
+
+        if (newData !== undefined) {
+          Swal.fire({ icon: "success", title: "User Added" });
+          clearForm();
+          props.onHide();
+        }
+      } else {
+        Swal.fire({ icon: "danger", title: "Error" });
+      }
+    } catch (e) {
+      console.error(e.message);
     }
   };
 
@@ -140,8 +178,16 @@ const NewUserModal = (props) => {
       isPasswordValid() &&
       number.length === 10 &&
       address.length > 0 &&
-      isNameValid(city)
+      isNameValid(city) &&
+      photoFile !== undefined &&
+      !containsWhitespace(photoFile.name) &&
+      photoFile.name.length > 0
     );
+  };
+
+  const getProfilepic = (event) => {
+    const FileObject = event.target.files[0];
+    setPhotoFile(FileObject);
   };
 
   const altEmailList = new Set([]);
@@ -172,16 +218,8 @@ const NewUserModal = (props) => {
     setUpdateState(-1);
   };
 
-  const addAllAltEmails = () => {
-    list.forEach(function (item, index) {
-      const EmailIdNo = id + (index + 1);
-      addAltEmail(id, item.altEmail, EmailIdNo);
-    });
-  };
-
-  useEffect(() => {
-    console.log(list);
-  }, [list]);
+  useEffect(() => {}, [list]);
+  useEffect(() => {}, [photoFile]);
 
   return (
     <Modal
@@ -195,6 +233,41 @@ const NewUserModal = (props) => {
       </Modal.Header>
       <Modal.Body>
         <Form>
+          <div
+            className={`${styles.Docs__PhotoPreview} bg-dark d-flex justify-content-center align-items-center rounded-circle overflow-hidden position-relative`}
+          >
+            {photoFile === undefined ? (
+              <FaImage className="text-light fs-2" />
+            ) : null}
+            <Image
+              src={
+                photoFile !== undefined ? URL.createObjectURL(photoFile) : ""
+              }
+              alt=""
+              className={`position-absolute w-100 h-100 object-fit-cover`}
+            />
+          </div>
+          <Form.Group controlId="formFile" className="mb-3">
+            <Form.Label>Insert profile picture</Form.Label>
+            <Form.Control
+              onChange={getProfilepic}
+              type="file"
+              ref={profilePicInput}
+              name="avatar"
+            />
+            <Form.Text>
+              {photoFile !== undefined && containsWhitespace(photoFile.name) ? (
+                <span className="text-danger">
+                  <FaTimes /> File name cant contain spaces
+                </span>
+              ) : photoFile !== undefined && photoFile.name.length > 0 ? (
+                <span className="text-success">
+                  <FaCheck /> Valid File Name
+                </span>
+              ) : null}
+            </Form.Text>
+          </Form.Group>
+
           <Form.Group className="mb-3">
             <Form.Label>First Name</Form.Label>
             <Form.Control
@@ -468,6 +541,7 @@ const NewUserModal = (props) => {
               </span>
             </Form.Text>
           </Form.Group>
+          <Form.Group></Form.Group>
           {isNewUserValid() ? (
             <Button onClick={addUser}>Add New User</Button>
           ) : null}

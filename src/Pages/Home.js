@@ -4,6 +4,7 @@ import NewUserModal from "../Components/NewUserModal";
 import Swal from "sweetalert2";
 import EditUserModal from "../Components/EditUserModal";
 import AltEmailsModal from "../Components/AltEmailsModal";
+import styles from "./Home.module.scss";
 const _ = require("lodash");
 
 const Home = () => {
@@ -123,6 +124,7 @@ const Home = () => {
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Photo</th>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Email Address</th>
@@ -137,6 +139,13 @@ const Home = () => {
               {returnedData.map((data, index) => {
                 return (
                   <tr key={index}>
+                    <td className={`${styles.Photo} position-relative p-0`}>
+                      <img
+                        className="w-100 h-100 position-absolute"
+                        src={`/assets/${data.Photo}`}
+                        alt=""
+                      />
+                    </td>
                     <td>{data.PersonID}</td>
                     <td>{data.FirstName}</td>
                     <td>{data.LastName}</td>

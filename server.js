@@ -3,14 +3,18 @@ const dbOperation = require("./dbFiles/dbOperation");
 const cors = require("cors");
 const _ = require("lodash");
 
+const profile = require("./profile");
+
 const API_PORT = process.env.PORT || 8000;
 const app = express();
 
 let client;
 let session;
+
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cors());
+app.use("/profile", profile);
 
 app.get("/get", async (req, res) => {
   await dbOperation.getAllUsers(req.body);
@@ -66,6 +70,7 @@ app.post("/addUser", async (req, res) => {
   let city = req.body.city;
   let formID = req.body.formID;
   let altEmails = req.body.altEmails;
+  let photo = req.body.photo;
 
   const result = await dbOperation
     .addUser(
@@ -77,7 +82,8 @@ app.post("/addUser", async (req, res) => {
       emailAddress,
       password,
       number,
-      formID
+      formID,
+      photo
     )
     .then(async (res) => {
       let resultData = res.recordset;
@@ -127,8 +133,10 @@ app.post("/addUser", async (req, res) => {
 app.post("/deleteUser", async (req, res) => {
   let deleteID = req.body.deleteID;
   const result = await dbOperation.deleteUser(deleteID);
+  const deleteAltEmails = await dbOperation.deleteAltEmailsUser(deleteID);
   console.log("User Deleted");
   res.send({ res: result.rowsAffected });
+  res.send({ res: deleteAltEmails.rowsAffected });
 });
 
 app.post("/updateUser", async (req, res) => {

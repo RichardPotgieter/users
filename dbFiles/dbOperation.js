@@ -63,6 +63,20 @@ const getAltEmails = async () => {
   }
 };
 
+const deleteAltEmailsUser = async (id) => {
+  try {
+    let pool = await sql.connect(config);
+    let alt = await pool
+      .request()
+      .input("PersonID", String(id))
+      .query(`DELETE * from AltEmails WHERE PersonID = @PersonID`);
+    return alt;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+};
+
 const addUser = async (
   id,
   lastName,
@@ -72,7 +86,8 @@ const addUser = async (
   emailAddress,
   password,
   number,
-  formID
+  formID,
+  photo
 ) => {
   try {
     let pool = await sql.connect(config);
@@ -86,9 +101,10 @@ const addUser = async (
       .input("EmailAddress", String(emailAddress))
       .input("Password", String(password))
       .input("Number", Number(number))
-      .input("formID", Number(formID)).query(`
-        INSERT INTO Users (PersonID, LastName, FirstName, Address, City, EmailAddress, Password, Number)
-        VALUES (@PersonID, @LastName, @FirstName, @Address, @City, @EmailAddress, @Password, @Number); SELECT SCOPE_IDENTITY() as formID
+      .input("formID", Number(formID))
+      .input("Photo", String(photo)).query(`
+        INSERT INTO Users (PersonID, LastName, FirstName, Address, City, EmailAddress, Password, Number, Photo)
+        VALUES (@PersonID, @LastName, @FirstName, @Address, @City, @EmailAddress, @Password, @Number, @Photo); SELECT SCOPE_IDENTITY() as formID
       `);
     return user;
   } catch (error) {
@@ -182,4 +198,5 @@ module.exports = {
   changeAltEmail,
   deleteAltEmail,
   addAltEmailModal,
+  deleteAltEmailsUser,
 };
