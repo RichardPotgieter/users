@@ -12,17 +12,15 @@ import {
   FaTimes,
   FaTrash,
 } from "react-icons/fa";
-import { v4 as uuidv4 } from "uuid";
-import AddItem from "./AddItem";
-import EditItem from "./EditItem";
+
 import styles from "./NewUserModal.module.scss";
+import AddNewAltEmails from "./AddNewAltEmails";
 
 var _ = require("lodash");
 
 const NewUserModal = (props) => {
-  const fileInput = createRef();
   const profilePicInput = createRef();
-
+  const [list, setList] = useState([[]]);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -30,10 +28,14 @@ const NewUserModal = (props) => {
   const [number, setNumber] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
-  const [listIndex, setListIndex] = useState("");
-  const [currentAltEmail, setCurrentAltEmail] = useState("");
-  const [profilePicName, setProfilePicName] = useState("");
   const [photoFile, setPhotoFile] = useState();
+  const [updateAlt, setUpdateAlt] = useState(false);
+
+  const handleUpdateAlt = (obj) => {
+    let newObj = obj;
+    setList(newObj);
+    console.log("handleUpdate obj", obj);
+  };
 
   const clearForm = () => {
     setFirstName("");
@@ -43,6 +45,7 @@ const NewUserModal = (props) => {
     setNumber("");
     setAddress("");
     setCity("");
+    setUpdateAlt(false);
   };
 
   function containsWhitespace(str) {
@@ -55,18 +58,21 @@ const NewUserModal = (props) => {
   const addUser = async (e) => {
     e.preventDefault();
     let altEmails = [];
-
     const formData = new FormData();
-    formData.set("avatar", photoFile);
+    console.log("altEmails", altEmails);
 
-    try {
-      const response = await fetch("/profile", {
-        method: "POST",
-        body: formData,
+    const initSetup = () => {
+      console.log("InitSetup");
+      return new Promise((resolve) => {
+        formData.set("avatar", photoFile);
+        setUpdateAlt(true);
+        resolve();
       });
+    };
 
-      const parseResponse = await response.json();
-      if (response.ok) {
+    const createList = () => {
+      console.log("createList");
+      return new Promise((resolve) => {
         list.forEach(function (item, index) {
           const EmailIdNo = id + (index + 1);
           altEmails.push({
@@ -75,57 +81,63 @@ const NewUserModal = (props) => {
             emailId: EmailIdNo,
           });
         });
+        resolve();
+      });
+    };
 
-        const newData = await fetch(`/addUser`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            id: id,
-            lastName: lastName,
-            firstName: firstName,
-            address: address,
-            city: city,
-            emailAddress: emailAddress,
-            password: password,
-            number: number,
-            altEmails: altEmails,
-            photo: photoFile.name,
-          }),
-        }).then((res) => res.json());
+    async function sendInput() {
+      console.log("altEmails sendInput", altEmails);
+      if (altEmails !== undefined && altEmails.length > 0) {
+        console.log("altEmails sendInput after check", altEmails);
+        try {
+          const response = await fetch("/profile", {
+            method: "POST",
+            body: formData,
+          });
 
-        if (newData !== undefined) {
-          Swal.fire({ icon: "success", title: "User Added" });
-          clearForm();
-          props.onHide();
+          const parseResponse = await response.json();
+          if (response.ok) {
+            const newData = await fetch(`/addUser`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              body: JSON.stringify({
+                id: id,
+                lastName: lastName,
+                firstName: firstName,
+                address: address,
+                city: city,
+                emailAddress: emailAddress,
+                password: password,
+                number: number,
+                altEmails: altEmails,
+                photo: photoFile.name,
+              }),
+            }).then((res) => res.json());
+
+            if (newData !== undefined) {
+              Swal.fire({ icon: "success", title: "User Added" });
+              clearForm();
+              props.onHide();
+            }
+          } else {
+            Swal.fire({ icon: "danger", title: "Error" });
+          }
+        } catch (e) {
+          console.error(e.message);
         }
-      } else {
-        Swal.fire({ icon: "danger", title: "Error" });
       }
-    } catch (e) {
-      console.error(e.message);
     }
-  };
 
-  const addAltEmail = async (id, currentAltEmail, emailId) => {
-    const newData = await fetch(`/addAltEmail`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        id: id,
-        email: currentAltEmail,
-        emailId: emailId,
-      }),
-    }).then((res) => res.json());
-
-    if (newData.res[0]) {
-      console.log("Alt Email Added");
+    async function AddUserSteps() {
+      await initSetup();
+      await createList();
+      await sendInput();
     }
+
+    AddUserSteps();
   };
 
   const hasSpecialChars = (string) => {
@@ -189,36 +201,10 @@ const NewUserModal = (props) => {
     setPhotoFile(FileObject);
   };
 
-  const altEmailList = new Set([]);
-  const [list, setList] = React.useState(altEmailList);
-  const [altEmail, setAltEmail] = React.useState("");
-  const [updateState, setUpdateState] = useState(-1);
-
-  function handleChange(event) {
-    setAltEmail(event.target.value);
-  }
-
-  function handleAdd() {
-    const newAltEmailList = Array.from(list).concat({ altEmail, id: uuidv4() });
-    setList(newAltEmailList);
-    setAltEmail("");
-  }
-
-  const handleEdit = (id) => {
-    setUpdateState(id);
-  };
-
-  const deleteAltEmail = (id) => {
-    const newList = list.filter((li) => li.id !== id);
-    setList(newList);
-  };
-
-  const handleUpdate = () => {
-    setUpdateState(-1);
-  };
-
-  useEffect(() => {}, [list]);
   useEffect(() => {}, [photoFile]);
+  React.useEffect(() => {
+    console.log("List", list);
+  }, [list]);
 
   return (
     <Modal
@@ -366,57 +352,10 @@ const NewUserModal = (props) => {
             </Form.Text>
           </Form.Group>
 
-          <AddItem
-            altEmail={altEmail}
-            onChange={handleChange}
-            onAdd={handleAdd}
+          <AddNewAltEmails
+            handleUpdateAlt={handleUpdateAlt}
+            updateAlt={updateAlt}
           />
-
-          <Form.Group className="p-3 border rounded mb-3 border-2">
-            <Form.Label>
-              <h2 className="fs-6">Added Alternative Emails</h2>
-            </Form.Label>
-            <ListGroup variant="flush">
-              {Array.from(list).map((item, index) =>
-                updateState === item.id ? (
-                  <EditItem
-                    key={index}
-                    list={list}
-                    setList={setList}
-                    item={item}
-                    handleUpdate={handleUpdate}
-                    component="NewUserModal"
-                  />
-                ) : (
-                  <ListGroup.Item key={index}>
-                    <span className="d-flex justify-content-between align-items-center">
-                      {item.altEmail}
-                      <span className="d-flex gap-2">
-                        <Button
-                          className="d-flex align-items-center"
-                          onClick={() => handleEdit(item.id)}
-                        >
-                          <FaEdit />
-                        </Button>
-                        <Button
-                          className="d-flex align-items-center"
-                          variant="danger"
-                          onClick={() => deleteAltEmail(item.id)}
-                        >
-                          <FaTrash />
-                        </Button>
-                      </span>
-                    </span>
-                  </ListGroup.Item>
-                )
-              )}
-              {list.size === 0 ? (
-                <span className="fst-italic opacity-50">
-                  No Alternative numbers added
-                </span>
-              ) : null}
-            </ListGroup>
-          </Form.Group>
 
           <Form.Group className="mb-3">
             <Form.Label>Password</Form.Label>

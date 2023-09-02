@@ -12,12 +12,12 @@ const AddItem = ({ altEmail, onChange, onAdd }) => {
 
   return (
     <Form.Group className="mb-3 border rounded bg-dark bg-opacity-10 p-3">
-      <Form.Label>Add Aternative Email</Form.Label>
+      <Form.Label>Add Alternative Email</Form.Label>
       <Form.Control
         type="text"
         value={altEmail}
         onChange={onChange}
-        placeholder="add email here"
+        placeholder="Add email here"
       />
       <Form.Text>
         {validateEmail() === null ? (

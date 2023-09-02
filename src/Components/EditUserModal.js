@@ -4,6 +4,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Swal from "sweetalert2";
 import FetchAltEmails from "./FetchAltEmails";
+import AddNewAltEmails from "./AddNewAltEmails";
 const _ = require("lodash");
 
 const EditUserModal = (props) => {
@@ -14,6 +15,14 @@ const EditUserModal = (props) => {
   const [editNumber, setEditNumber] = useState("");
   const [editAddress, setEditAddress] = useState("");
   const [editCity, setEditCity] = useState("");
+  const [updateAlt, setUpdateAlt] = useState(false);
+  const [list, setList] = useState([[]]);
+
+  const handleUpdateAlt = (obj) => {
+    let newObj = obj;
+    setList(newObj);
+    console.log("handleUpdate obj", obj);
+  };
 
   const user = props.userinfo[0];
 
@@ -31,6 +40,7 @@ const EditUserModal = (props) => {
 
   let personCode = props.user_alt_emails;
   let altdata = props.altdata;
+  let AltEmailsList = _.filter(altdata, ["PersonID", personCode]);
 
   const updateUser = async (event) => {
     const updateID = event.target.value;
@@ -58,6 +68,10 @@ const EditUserModal = (props) => {
       props.onHide();
     }
   };
+
+  React.useEffect(() => {
+    console.log("EditUserModal List", list);
+  }, [list]);
 
   return (
     <Modal
@@ -103,6 +117,17 @@ const EditUserModal = (props) => {
                   onChange={(e) => setEditEmailAddress(e.target.value)}
                 />
               </Form.Group>
+              {AltEmailsList !== undefined ? (
+                AltEmailsList.length > 0 ? (
+                  <FetchAltEmails personCode={personCode} altdata={altdata} />
+                ) : (
+                  <AddNewAltEmails
+                    handleUpdateAlt={handleUpdateAlt}
+                    updateAlt={updateAlt}
+                  />
+                )
+              ) : null}
+
               <Form.Group className="mb-3">
                 <Form.Label>Password</Form.Label>
                 <Form.Control
@@ -152,7 +177,6 @@ const EditUserModal = (props) => {
                 Update User
               </Button>
             </Form>
-            <FetchAltEmails personCode={personCode} altdata={altdata} />
           </>
         ) : null}
       </Modal.Body>
