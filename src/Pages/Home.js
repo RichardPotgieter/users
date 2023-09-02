@@ -56,6 +56,7 @@ const Home = () => {
       res.json().then(() => {
         if (newData === undefined) {
           fetchData();
+          fetchAltEmails();
         }
       });
     });
@@ -123,8 +124,8 @@ const Home = () => {
           >
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Photo</th>
+                <th>ID</th>
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Email Address</th>

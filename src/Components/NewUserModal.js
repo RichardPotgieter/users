@@ -58,7 +58,6 @@ const NewUserModal = (props) => {
 
     const formData = new FormData();
     formData.set("avatar", photoFile);
-    // console.log("photoFile", photoFile.name);
 
     try {
       const response = await fetch("/profile", {

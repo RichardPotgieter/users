@@ -133,10 +133,8 @@ app.post("/addUser", async (req, res) => {
 app.post("/deleteUser", async (req, res) => {
   let deleteID = req.body.deleteID;
   const result = await dbOperation.deleteUser(deleteID);
-  const deleteAltEmails = await dbOperation.deleteAltEmailsUser(deleteID);
   console.log("User Deleted");
   res.send({ res: result.rowsAffected });
-  res.send({ res: deleteAltEmails.rowsAffected });
 });
 
 app.post("/updateUser", async (req, res) => {

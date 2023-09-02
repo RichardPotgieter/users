@@ -168,7 +168,9 @@ const deleteUser = async (id) => {
     let user = await pool
       .request()
       .input("PersonID", String(id))
-      .query(`DELETE FROM Users WHERE PersonID = @PersonID`);
+      .query(
+        `DELETE FROM Users WHERE PersonID = @PersonID; DELETE from AltEmails WHERE PersonID = @PersonID`
+      );
     return user;
   } catch (error) {
     console.log(error);
