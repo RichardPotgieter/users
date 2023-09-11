@@ -15,12 +15,13 @@ import {
 
 import styles from "./NewUserModal.module.scss";
 import AddNewAltEmails from "./AddNewAltEmails";
+import AddNewLangs from "./languages/AddNewLangs";
 
 var _ = require("lodash");
 
 const NewUserModal = (props) => {
   const profilePicInput = createRef();
-  const [list, setList] = useState([[]]);
+  const [list, setList] = useState([["No List"]]);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
@@ -30,11 +31,21 @@ const NewUserModal = (props) => {
   const [city, setCity] = useState("");
   const [photoFile, setPhotoFile] = useState();
   const [updateAlt, setUpdateAlt] = useState(false);
+  const [altEmails, setAltEmails] = useState("");
+  const [userId, setUserId] = useState("");
 
   const handleUpdateAlt = (obj) => {
-    let newObj = obj;
-    setList(newObj);
-    console.log("handleUpdate obj", obj);
+    let newAlt = [];
+    obj.forEach(function (item, index) {
+      const EmailIdNo = userId + (index + 1);
+      newAlt.push({
+        id: userId,
+        email: item.altEmail,
+        emailId: EmailIdNo,
+      });
+    });
+
+    setAltEmails(newAlt);
   };
 
   const clearForm = () => {
@@ -54,91 +65,6 @@ const NewUserModal = (props) => {
 
   const id =
     firstName.slice(0, 3) + lastName.slice(0, 3) + moment().format("x");
-
-  const addUser = async (e) => {
-    e.preventDefault();
-    let altEmails = [];
-    const formData = new FormData();
-    console.log("altEmails", altEmails);
-
-    const initSetup = () => {
-      console.log("InitSetup");
-      return new Promise((resolve) => {
-        formData.set("avatar", photoFile);
-        setUpdateAlt(true);
-        resolve();
-      });
-    };
-
-    const createList = () => {
-      console.log("createList");
-      return new Promise((resolve) => {
-        list.forEach(function (item, index) {
-          const EmailIdNo = id + (index + 1);
-          altEmails.push({
-            id: id,
-            email: item.altEmail,
-            emailId: EmailIdNo,
-          });
-        });
-        resolve();
-      });
-    };
-
-    async function sendInput() {
-      console.log("altEmails sendInput", altEmails);
-      if (altEmails !== undefined && altEmails.length > 0) {
-        console.log("altEmails sendInput after check", altEmails);
-        try {
-          const response = await fetch("/profile", {
-            method: "POST",
-            body: formData,
-          });
-
-          const parseResponse = await response.json();
-          if (response.ok) {
-            const newData = await fetch(`/addUser`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-              },
-              body: JSON.stringify({
-                id: id,
-                lastName: lastName,
-                firstName: firstName,
-                address: address,
-                city: city,
-                emailAddress: emailAddress,
-                password: password,
-                number: number,
-                altEmails: altEmails,
-                photo: photoFile.name,
-              }),
-            }).then((res) => res.json());
-
-            if (newData !== undefined) {
-              Swal.fire({ icon: "success", title: "User Added" });
-              clearForm();
-              props.onHide();
-            }
-          } else {
-            Swal.fire({ icon: "danger", title: "Error" });
-          }
-        } catch (e) {
-          console.error(e.message);
-        }
-      }
-    }
-
-    async function AddUserSteps() {
-      await initSetup();
-      await createList();
-      await sendInput();
-    }
-
-    AddUserSteps();
-  };
 
   const hasSpecialChars = (string) => {
     const specialChars = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
@@ -201,9 +127,87 @@ const NewUserModal = (props) => {
     setPhotoFile(FileObject);
   };
 
-  useEffect(() => {}, [photoFile]);
+  const addUser = () => {
+    setUserId(id);
+    setUpdateAlt(true);
+  };
+
+  React.useEffect(() => {}, [userId]);
+
+  useEffect(() => {
+    const addUserData = () => {
+      const formData = new FormData();
+
+      const initSetup = () => {
+        return new Promise(function (resolve) {
+          formData.set("avatar", photoFile);
+
+          resolve();
+        });
+      };
+
+      const sendInput = () => {
+        return new Promise(async function (resolve) {
+          try {
+            const response = await fetch("/profile", {
+              method: "POST",
+              body: formData,
+            });
+
+            const parseResponse = await response.json();
+            if (response.ok) {
+              const newData = await fetch(`/addUser`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
+                body: JSON.stringify({
+                  id: userId,
+                  lastName: lastName,
+                  firstName: firstName,
+                  address: address,
+                  city: city,
+                  emailAddress: emailAddress,
+                  password: password,
+                  number: number,
+                  altEmails: altEmails,
+                  photo: photoFile.name,
+                }),
+              }).then((res) => res.json());
+
+              if (newData !== undefined) {
+                Swal.fire({ icon: "success", title: "User Added" });
+                clearForm();
+                props.onHide();
+              }
+            } else {
+              Swal.fire({ icon: "danger", title: "Error" });
+            }
+            resolve();
+          } catch (e) {
+            console.error(e.message);
+          }
+        });
+      };
+
+      async function AddUserSteps() {
+        await initSetup();
+        await sendInput();
+      }
+
+      AddUserSteps();
+    };
+
+    if (updateAlt) {
+      if (altEmails.length > 0) {
+        addUserData();
+      }
+    }
+  }, [updateAlt, altEmails, photoFile]);
+
   React.useEffect(() => {
-    console.log("List", list);
+    // console.log("List", list);
   }, [list]);
 
   return (
@@ -224,13 +228,13 @@ const NewUserModal = (props) => {
             {photoFile === undefined ? (
               <FaImage className="text-light fs-2" />
             ) : null}
-            <Image
-              src={
-                photoFile !== undefined ? URL.createObjectURL(photoFile) : ""
-              }
-              alt=""
-              className={`position-absolute w-100 h-100 object-fit-cover`}
-            />
+            {photoFile !== undefined ? (
+              <Image
+                src={URL.createObjectURL(photoFile)}
+                alt=""
+                className={`position-absolute w-100 h-100 object-fit-cover`}
+              />
+            ) : null}
           </div>
           <Form.Group controlId="formFile" className="mb-3">
             <Form.Label>Insert profile picture</Form.Label>
@@ -323,6 +327,8 @@ const NewUserModal = (props) => {
               </span>
             </Form.Text>
           </Form.Group>
+
+          <AddNewLangs />
 
           <Form.Group className="mb-3">
             <Form.Label>Email address</Form.Label>

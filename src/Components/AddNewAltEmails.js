@@ -35,14 +35,14 @@ const AddNewAltEmails = ({ handleUpdateAlt, updateAlt }) => {
     setUpdateState(-1);
   };
 
-  React.useEffect(() => {}, [list]);
-
   React.useEffect(() => {
     if (updateAlt) {
       handleUpdateAlt(list);
     }
-    console.log("updateAlt", updateAlt);
+    // console.log("updateAlt addNewAltEmails", updateAlt);
   }, [updateAlt]);
+
+  React.useEffect(() => {}, [list]);
 
   return (
     <>

@@ -17,11 +17,21 @@ const EditUserModal = (props) => {
   const [editCity, setEditCity] = useState("");
   const [updateAlt, setUpdateAlt] = useState(false);
   const [list, setList] = useState([[]]);
+  const [userId, setUserId] = useState("");
+  const [altEmails, setAltEmails] = useState("");
 
   const handleUpdateAlt = (obj) => {
-    let newObj = obj;
-    setList(newObj);
-    console.log("handleUpdate obj", obj);
+    let newAlt = [];
+    obj.forEach(function (item, index) {
+      const EmailIdNo = userId + (index + 1);
+      newAlt.push({
+        id: userId,
+        email: item.altEmail,
+        emailId: EmailIdNo,
+      });
+    });
+
+    setAltEmails(newAlt);
   };
 
   const user = props.userinfo[0];
@@ -42,36 +52,62 @@ const EditUserModal = (props) => {
   let altdata = props.altdata;
   let AltEmailsList = _.filter(altdata, ["PersonID", personCode]);
 
-  const updateUser = async (event) => {
-    const updateID = event.target.value;
-    const newData = await fetch(`/updateUser`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        id: updateID,
-        lastName: editLastName,
-        firstName: editFirstName,
-        address: editAddress,
-        city: editCity,
-        emailAddress: editEmailAddress,
-        password: editPassword,
-        number: editNumber,
-      }),
-    }).then((res) => res.json());
+  useEffect(() => {
+    const updateUserData = async () => {
+      const updateID = personCode;
+      const newData = await fetch(`/updateUser`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          id: updateID,
+          lastName: editLastName,
+          firstName: editFirstName,
+          address: editAddress,
+          city: editCity,
+          emailAddress: editEmailAddress,
+          password: editPassword,
+          number: editNumber,
+          altEmails:
+            altEmails !== undefined && altEmails.length > 0 ? altEmails : "",
+          altEmailsCount:
+            altEmails !== undefined && altEmails.length > 0
+              ? altEmails.length
+              : 0,
+        }),
+      }).then((res) => res.json());
 
-    if (newData.res[0]) {
-      Swal.fire({ icon: "success", title: "User Updated" });
-      props.onClick();
-      props.onHide();
+      if (newData.res[0]) {
+        Swal.fire({ icon: "success", title: "User Updated" });
+        props.onClick();
+        props.onHide();
+      }
+    };
+    if (updateAlt) {
+      if (altEmails !== undefined || AltEmailsList !== undefined) {
+        if (altEmails.length > 0 || AltEmailsList.length > 0) {
+          updateUserData();
+        }
+      }
     }
+  }, [personCode, altEmails, AltEmailsList]);
+
+  const updateUser = () => {
+    setUserId(personCode);
+    setUpdateAlt(true);
   };
 
   React.useEffect(() => {
-    console.log("EditUserModal List", list);
+    // console.log("EditUserModal List", list);
+    // console.log("user", user);
   }, [list]);
+
+  React.useEffect(() => {
+    // console.log("EditUserModal List", list);
+    // console.log("user", user);
+  }, []);
 
   return (
     <Modal
@@ -81,7 +117,9 @@ const EditUserModal = (props) => {
       centered
     >
       <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">Edit User</Modal.Title>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Edit User - {personCode}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {user !== undefined ? (

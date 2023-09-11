@@ -15,6 +15,10 @@ const getAllUsers = async () => {
 const addAltEmail = async (Email) => {
   console.log("addAltEmail");
   console.log("Email", Email);
+  console.log("Email", Email.id);
+  console.log("Email", Email.email);
+  console.log("Email", Email.emailId);
+  console.log("Email", Email.formID);
   try {
     let pool = await sql.connect(config);
     let addAlt = await pool

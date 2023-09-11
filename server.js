@@ -89,10 +89,11 @@ app.post("/addUser", async (req, res) => {
       let resultData = res.recordset;
       if (resultData !== undefined && resultData.length > 0) {
         let user = resultData[0];
-
         let userFormID = user.formID;
 
-        if (altEmails.length > 0) {
+        if (altEmails !== undefined && altEmails.length > 0) {
+          console.log("altEmails", altEmails);
+
           _.map(altEmails, async (email) => {
             email.formID = userFormID;
 
@@ -100,11 +101,8 @@ app.post("/addUser", async (req, res) => {
               .addAltEmail(email)
               .then(async (res) => {
                 let affectedRows = res.rowsAffected;
-                if (
-                  affectedRows !== undefined &&
-                  undefined &&
-                  affectedRows.length > 0
-                ) {
+                if (affectedRows !== undefined && affectedRows.length > 0) {
+                  console.log("affectedRows[0]", affectedRows[0]);
                   return affectedRows[0];
                 } else {
                   return 0;
@@ -146,6 +144,8 @@ app.post("/updateUser", async (req, res) => {
   let number = req.body.number;
   let address = req.body.address;
   let city = req.body.city;
+  let altEmailsCount = req.body.altEmailsCount;
+  let altEmails = req.body.altEmails;
 
   const result = await dbOperation.updateUser(
     id,
@@ -161,6 +161,31 @@ app.post("/updateUser", async (req, res) => {
   if (result) {
     console.log("User Updated");
     res.send({ res: result.rowsAffected });
+  }
+
+  console.log("altEmailsCount", altEmailsCount);
+  console.log("altEmails", altEmails);
+
+  if (altEmailsCount > 0) {
+    console.log("altEmails", altEmails);
+
+    _.map(altEmails, async (email) => {
+      email.formID = id;
+
+      const data = await dbOperation.addAltEmail(email).then(async (res) => {
+        let affectedRows = res.rowsAffected;
+        if (affectedRows !== undefined && affectedRows.length > 0) {
+          console.log("affectedRows[0]", affectedRows[0]);
+          return affectedRows[0];
+        } else {
+          return 0;
+        }
+      });
+
+      if (data > 0) {
+        // Row inserted
+      }
+    });
   }
 });
 

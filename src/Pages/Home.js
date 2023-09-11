@@ -183,44 +183,6 @@ const Home = () => {
             </tbody>
           </Table>
         </section>
-        <section>
-          <h2>Alternative Emails</h2>
-          <Table
-            striped
-            bordered
-            hover
-            className="rounded mt-3 shadow border-secondary"
-            variant="dark"
-          >
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Email Address</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {altData.map((data, index) => {
-                return (
-                  <tr key={index}>
-                    <td>{data.PersonID}</td>
-                    <td>{data.AltEmail}</td>
-                    <td>
-                      <Button
-                        onClick={() => {
-                          setAltModalShow(true);
-                          getUserAltEmails(data.PersonID);
-                        }}
-                      >
-                        View User Emails
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-        </section>
       </Col>
       <NewUserModal
         show={modalShow}

@@ -78,7 +78,9 @@ const FetchAltEmails = (props) => {
     }
   }, []);
 
-  useEffect(() => {}, [AltList]);
+  useEffect(() => {
+    // console.log("AltEmailList", AltEmailsList);
+  }, [AltList, AltEmailsList]);
 
   return (
     <>
