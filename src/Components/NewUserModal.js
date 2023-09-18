@@ -33,6 +33,8 @@ const NewUserModal = (props) => {
   const [updateAlt, setUpdateAlt] = useState(false);
   const [altEmails, setAltEmails] = useState("");
   const [userId, setUserId] = useState("");
+  const [languages, setLanguages] = useState("");
+  const [langsValid, setLangsValid] = useState(false);
 
   const handleUpdateAlt = (obj) => {
     let newAlt = [];
@@ -210,6 +212,27 @@ const NewUserModal = (props) => {
     // console.log("List", list);
   }, [list]);
 
+  const handleUpdateLang = (obj) => {
+    let newLangsArray = [];
+    if (obj.length > 0) {
+      obj.forEach(function (item) {
+        newLangsArray.push(item.lang);
+      });
+      setLanguages(newLangsArray);
+    }
+  };
+
+  const validateLangs = (obj) => {
+    if (obj.length) {
+      setLangsValid(true);
+    } else {
+      setLangsValid(false);
+    }
+  };
+
+  React.useEffect(() => {}, [langsValid]);
+  React.useEffect(() => {}, [languages]);
+
   return (
     <Modal
       {...props}
@@ -328,7 +351,10 @@ const NewUserModal = (props) => {
             </Form.Text>
           </Form.Group>
 
-          <AddNewLangs />
+          <AddNewLangs
+            validateLangs={validateLangs}
+            handleUpdateLang={handleUpdateLang}
+          />
 
           <Form.Group className="mb-3">
             <Form.Label>Email address</Form.Label>
